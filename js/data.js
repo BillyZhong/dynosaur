@@ -1,28 +1,30 @@
 var r = new Runner('.interstitial-wrapper');
 var naivebot = 0;
-var inputs = [0,0,0,0,0,0,0,0,0,0];
+var downPressed = 0;
 
-var up = function(){
-  var event = new Event('keydown');
-  event.keyCode = 38;
-  event.which = event.keyCode;
-  event.altKey = false;
-  event.ctrlKey = true;
-  event.shiftKey = false;
-  event.metaKey = false;
-  document.dispatchEvent(event);
-  var event = new Event('keyup');
-  event.keyCode = 38;
-  event.which = event.keyCode;
-  event.altKey = false;
-  event.ctrlKey = true;
-  event.shiftKey = false;
-  event.metaKey = false;
-  document.dispatchEvent(event);
+var up = function(press){
+  if(press){
+    var event = new Event('keydown');
+    event.keyCode = 38;
+    event.which = event.keyCode;
+    event.altKey = false;
+    event.ctrlKey = true;
+    event.shiftKey = false;
+    event.metaKey = false;
+    document.dispatchEvent(event);
+    var event = new Event('keyup');
+    event.keyCode = 38;
+    event.which = event.keyCode;
+    event.altKey = false;
+    event.ctrlKey = true;
+    event.shiftKey = false;
+    event.metaKey = false;
+    document.dispatchEvent(event);
+  }
 };
 
 var down = function(press){
-  if(press){
+  if(press && !downPressed){
     var event = new Event('keydown');
     event.keyCode = 40;
     event.which = event.keyCode;
@@ -31,8 +33,9 @@ var down = function(press){
     event.shiftKey = false;
     event.metaKey = false;
     document.dispatchEvent(event);
+    downPressed = 1;
   }
-  else{
+  else if(!press && downPressed){
     var event = new Event('keyup');
     event.keyCode = 40;
     event.which = event.keyCode;
@@ -41,14 +44,14 @@ var down = function(press){
     event.shiftKey = false;
     event.metaKey = false;
     document.dispatchEvent(event);
+    downPressed = 0;
   }
 };
 
 var updateData = function(){
   if(!r.crashed){
-    document.getElementById('gameNum').innerText = r.playCount;
-    document.getElementById('score').innerText = parseInt(r.distanceMeter.digits[0]+r.distanceMeter.digits[1]+r.distanceMeter.digits[2]+r.distanceMeter.digits[3]+r.distanceMeter.digits[4]);
-    document.getElementById('obstacleNum').innerText = r.horizon.obstacleNum;
+    document.getElementById('score').innerHTML = parseInt(r.distanceMeter.digits[0]+r.distanceMeter.digits[1]+r.distanceMeter.digits[2]+r.distanceMeter.digits[3]+r.distanceMeter.digits[4]);
+    document.getElementById('obstacleNum').innerHTML = r.horizon.obstacleNum;
     document.getElementById('tRexHeight').innerText = -r.tRex.yPos + 93;
     inputs[0] = -r.tRex.yPos + 93;
     document.getElementById('tRexSpeed').innerText = r.currentSpeed;
@@ -93,6 +96,26 @@ var updateData = function(){
       document.getElementById('secondObsBottom').innerText = 999;
       inputs[9] = 999;
     }
+    up(outputBinary[0]);
+    document.getElementById('upOutput').innerText = outputs[0];
+    if(outputBinary[0]){
+      document.getElementById('upSwitch').setAttribute('checked',"");
+      document.getElementById('upSwitch').parentElement.className += !document.getElementById('upSwitch').parentElement.className.includes(' is-checked') ? ' is-checked' : ''
+    }
+    else{
+      document.getElementById('upSwitch').removeAttribute('checked');
+      document.getElementById('upSwitch').parentElement.className = document.getElementById('upSwitch').parentElement.className.replace(' is-checked','');
+    }
+    down(outputBinary[1]);
+    document.getElementById('downOutput').innerText = outputs[1];
+    if(outputBinary[1]){
+      document.getElementById('downSwitch').setAttribute('checked',"");
+      document.getElementById('downSwitch').parentElement.className += !document.getElementById('downSwitch').parentElement.className.includes(' is-checked') ? ' is-checked' : ''
+    }
+    else{
+      document.getElementById('downSwitch').removeAttribute('checked');
+      document.getElementById('downSwitch').parentElement.className = document.getElementById('downSwitch').parentElement.className.replace(' is-checked','');
+    }
   }
 };
 
@@ -101,17 +124,22 @@ var s = setInterval(function(){
 
   if(naivebot){
     if(parseInt(document.getElementById('firstObsRight').innerText) < 50){
-      console.log(1);
       down(1);
     }
     else if(parseInt(document.getElementById('firstObsLeft').innerText) < 120){
-      console.log(2);
       down(0);
-      up();
+      up(1);
     }
     else{
-      console.log(3);
       down(1);
     }
   }
 },50);
+
+var simulateNext = function(){
+  document.getElementById('indNum').innerHTML = currentIndividual%population.length+1;
+  simulateIndividual(currentIndividual%population.length);
+  generation = Math.floor(currentIndividual/population.length)+1;
+  document.getElementById('genNum').innerHTML = generation;
+  currentIndividual++;
+}

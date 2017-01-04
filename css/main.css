@@ -32,7 +32,7 @@ html,body{
   line-height: 1.55;
   margin: 0 auto;
   max-width: 600px;
-  padding-top: 100px;
+  padding-top: 10px;
   width: 100%;
 }
 
@@ -40,7 +40,7 @@ html,body{
   height: 150px;
   max-width: 600px;
   overflow: hidden;
-  position: absolute;
+  position: relative;
   top: 35px;
   width: 44px;
 }
@@ -50,7 +50,7 @@ html,body{
   max-width: 600px;
   opacity: 1;
   overflow: hidden;
-  position: absolute;
+  position: relative;
   top: 0;
   z-index: 2;
 }
@@ -59,7 +59,7 @@ html,body{
   background: rgba(247,247,247, .1);
   height: 100vh;
   left: 0;
-  position: absolute;
+  position: relative;
   top: 0;
   width: 100vw;
   z-index: 1;
@@ -118,7 +118,7 @@ html,body{
 
 @media (min-height: 240px) and (orientation: landscape) {
   .offline .interstitial-wrapper {
-    margin-bottom: 90px;
+    margin-bottom: 10%;
   }
 
   .icon-offline {

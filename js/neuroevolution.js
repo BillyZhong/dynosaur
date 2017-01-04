@@ -2,13 +2,19 @@ var z = new Ziggurat();
 var population = [];
 var fitness = [];
 var totalFitness = 0;
-var nextSim = 1;
+var generation = 1;
+var currentIndividual = 0;
+var inputs = [0,0,0,0,0,0,0,0,0,0];
+var outputs = [0,0];
+var outputBinary = [0,0];
 //maxGen, elitism
 
 var generatePopulation = function(popSize, hiddenNeuronNum){
   population = [];
   fitness = [];
   totalFitness = 0;
+  generation = 1;
+  currentIndividual = 0;
   for(var i = 0; i < popSize; i++){
     var inputLayer = new synaptic.Layer(10);
     var hiddenLayer = new synaptic.Layer(hiddenNeuronNum);
@@ -40,7 +46,7 @@ var generatePopulation = function(popSize, hiddenNeuronNum){
   }
 };
 
-var simulateIndividual = function(individual){
+var simulateIndividual = function(individual, output1Threshold, output2Threshold){
   r.restart();
   var sim = setInterval(function(){
     if(r.crashed){
@@ -48,15 +54,18 @@ var simulateIndividual = function(individual){
       totalFitness += fitness[individual];
       clearInterval(sim);
     }
-    var outputs = population[individual].activate(inputs);
-    if(outputs[0] > 0.5){
-      up();
-    }
-    if(outputs[1] > 0.5){
-      down(1);
+    outputs = population[individual].activate(inputs);
+    if(outputs[0] > output1Threshold){
+      outputBinary[0] = 1;
     }
     else{
-      down(0);
+      outputBinary[0] = 0;
+    }
+    if(outputs[1] > output2Threshold){
+      outputBinary[1] = 1;
+    }
+    else{
+      outputBinary[1] = 0;
     }
   }, 50);
 };
