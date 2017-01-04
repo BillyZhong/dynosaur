@@ -75,16 +75,17 @@ var selection = function(totalFitness){
   var tempFitness = [];
   while(population.length > 0){
     var randFitness = Math.random()*totalFitness;
-    var currentIndividual = 0;
+    var selectedIndividual = 0;
     while(randFitness > 0){
-      randFitness -= fitness[currentIndividual];
-      currentIndividual++;
+      randFitness -= fitness[selectedIndividual];
+      selectedIndividual++;
     }
-    tempPop.push(population[currentIndividual-1]);
-    population.splice(currentIndividual-1, 1);
-    totalFitness -= fitness[currentIndividual-1];
-    tempFitness.push(fitness[currentIndividual-1]);
-    fitness.splice(currentIndividual-1, 1);
+    tempPop.push(population[selectedIndividual-1]);
+    population.splice(selectedIndividual-1, 1);
+    totalFitness -= fitness[selectedIndividual-1];
+    console.log(totalFitness);
+    tempFitness.push(fitness[selectedIndividual-1]);
+    fitness.splice(selectedIndividual-1, 1);
   }
   population = tempPop;
   fitness = tempFitness;
@@ -169,20 +170,5 @@ var mutation = function(individual, mutationRate){
         population[individual].layers.output.list[i].connections.inputs[j].weight += z.nextGaussian()*population[individual].layers.output.list[i].connections.inputs[j].weight;
       }
     }
-  }
-};
-
-
-var evolve = function(popSize, hiddenNeuronNum, crossoverRate, mutationRate){
-  generatePopulation(popSize, hiddenNeuronNum);
-  for(var i = 0; i < popSize; i++){
-    simulateIndividual(i);
-  }
-  selection(totalFitness);
-  for(var i = 0; i < popSize; i+=2){
-    crossover(i,i+1,crossoverRate);
-  }
-  for(var i = 0; i < popSize; i++){
-    mutation(i, mutationRate);
   }
 };

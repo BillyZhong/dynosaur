@@ -138,8 +138,18 @@ var s = setInterval(function(){
 
 var simulateNext = function(){
   document.getElementById('indNum').innerHTML = currentIndividual%population.length+1;
-  simulateIndividual(currentIndividual%population.length);
+  simulateIndividual(currentIndividual%population.length, 0.5, 0.5);
   generation = Math.floor(currentIndividual/population.length)+1;
   document.getElementById('genNum').innerHTML = generation;
   currentIndividual++;
-}
+};
+
+var evolvePop = function(){
+  selection(totalFitness);
+  for(var i = 0; i < population.length; i+=2){
+    crossover(i,i+1,0.5);
+  }
+  for(var i = 0; i < population.length; i++){
+    mutation(i, 0.3);
+  }
+};
