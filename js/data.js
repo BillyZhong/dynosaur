@@ -231,14 +231,19 @@ var drawNeuralNet = function(individual){
   });
 };
 
+var evolve = function(){
+  newPop();
+  var intrvl = setInterval(function(){ if(r.crashed){if(currentIndividual%population.length==0&&currentIndividual!=0){evolvePop();} simulateNext();}},1000);
+};
+
 var newPop = function(){
   generation = 1;
   document.getElementById('genNum').innerHTML = generation;
   currentIndividual = 0;
   document.getElementById('indNum').innerHTML = currentIndividual + 1;
-  generatePopulation(4,4);
+  generatePopulation(12,4);
   var labels = [];
-  for(var i = 0; i < 4; i++){
+  for(var i = 0; i < 12; i++){
     labels.push("Individual " + (i+1));
   }
   var fitnessCtx = document.getElementById('fitnessChart').getContext('2d');
