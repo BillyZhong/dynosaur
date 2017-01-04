@@ -7,11 +7,13 @@ var currentIndividual = 0;
 var inputs = [0,0,0,0,0,0,0,0,0,0];
 var outputs = [0,0];
 var outputBinary = [0,0];
+var maxFitness = [];
 //maxGen, elitism
 
 var generatePopulation = function(popSize, hiddenNeuronNum){
   population = [];
   fitness = [];
+  maxFitness = [];
   totalFitness = 0;
   generation = 1;
   currentIndividual = 0;
@@ -70,7 +72,8 @@ var simulateIndividual = function(individual, output1Threshold, output2Threshold
   }, 50);
 };
 
-var selection = function(totalFitness){
+var selection = function(){
+  var tempMaxFit = -1;
   var tempPop = [];
   var tempFitness = [];
   while(population.length > 0){
@@ -83,12 +86,13 @@ var selection = function(totalFitness){
     tempPop.push(population[selectedIndividual-1]);
     population.splice(selectedIndividual-1, 1);
     totalFitness -= fitness[selectedIndividual-1];
-    console.log(totalFitness);
+    tempMaxFit = Math.max(tempMaxFit, fitness[selectedIndividual-1]);
     tempFitness.push(fitness[selectedIndividual-1]);
     fitness.splice(selectedIndividual-1, 1);
   }
   population = tempPop;
   fitness = tempFitness;
+  maxFitness.push(tempMaxFit);
 };
 
 var crossover = function(individual1, individual2, crossoverRate){

@@ -42,7 +42,7 @@
         <div class="mdl-layout__header-row">
           <span class="mdl-layout-title">Dynosaur</span>
           <div class="mdl-layout-spacer"></div>
-          <button onclick="generatePopulation(4, 4)" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored mdl-color-text--white">
+          <button onclick="newPop()" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored mdl-color-text--white">
             New Population
           </button>
         </div>
@@ -102,60 +102,70 @@
               <text id="obstacleNum" x="0.5" y="0.6" font-family="Roboto" font-size="0.3" fill="#888" text-anchor="middle" dy="0.1">0</text>
             </svg>
           </div>
-          <div class="mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--8-col" style="">
-            <div class="mdl-color--blue-grey-500" style="width:100%">
+          <div class="demo-cards mdl-cell mdl-cell--8-col mdl-grid mdl-grid--no-spacing">
+            <div class="mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-color--blue-grey-500">
               <div id="main-frame-error" class="interstitial-wrapper">
                 <div id="main-content">
                 </div>
               </div>
               <center><canvas id="collision-canvas" width="600" height="150" style="width:600px;height:150px;margin-bottom:10%"></canvas></center>
             </div>
-            <center><h3>Neural Network Outputs</h3></center>
-            <div class="mdl-grid">
-              <div class="mdl-color--white mdl-cell mdl-cell--6-col">
-                <ul class="demo-list-two mdl-list" style="width:300px">
-                  <li class="mdl-list__item mdl-list__item--two-line">
-                    <span class="mdl-list__item-primary-content">
-                      <i class="material-icons mdl-list__item-avatar">arrow_upward</i>
-                      <span>Up</span>
-                      <span id="upOutput" class="mdl-list__item-sub-title"></span>
-                    </span>
-                    <span class="mdl-list__item-secondary-action">
-                      <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="upSwitch">
-                        <input type="checkbox" id="upSwitch" class="mdl-switch__input" checked />
-                      </label>
-                    </span>
-                  </li>
-                </ul>
+            <div class="demo-separator mdl-cell--12-col"></div><div class="mdl-grid mdl-grid--no-spacing mdl-cell mdl-cell--12-col">
+            <div class="mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--8-col" style="position:relative">
+              <center><h4 style="margin-bottom:0">Neural Network Outputs</h4></center>
+              <div class="mdl-grid">
+                <div class="mdl-color--white mdl-cell mdl-cell--4-col mdl-cell--1-offset">
+                  <ul class="demo-list-two mdl-list" style="width:300px">
+                    <li class="mdl-list__item mdl-list__item--two-line">
+                      <span class="mdl-list__item-primary-content">
+                        <i class="material-icons mdl-list__item-avatar">arrow_upward</i>
+                        <span>Up</span>
+                        <span id="upOutput" class="mdl-list__item-sub-title"></span>
+                      </span>
+                      <span class="mdl-list__item-secondary-action">
+                        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="upSwitch">
+                          <input type="checkbox" id="upSwitch" class="mdl-switch__input" checked />
+                        </label>
+                      </span>
+                    </li>
+                    <li class="mdl-list__item mdl-list__item--two-line">
+                      <span class="mdl-list__item-primary-content">
+                        <i class="material-icons mdl-list__item-avatar">arrow_downward</i>
+                        <span>Down</span>
+                        <span id="downOutput" class="mdl-list__item-sub-title"></span>
+                      </span>
+                      <span class="mdl-list__item-secondary-action">
+                        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="downSwitch">
+                          <input type="checkbox" id="downSwitch" class="mdl-switch__input" checked />
+                        </label>
+                      </span>
+                    </li>
+                  </ul>
+                </div>
               </div>
-              <div class="mdl-color--white mdl-cell mdl-cell--6-col">
-                <ul class="demo-list-two mdl-list" style="width:300px">
-                  <li class="mdl-list__item mdl-list__item--two-line">
-                    <span class="mdl-list__item-primary-content">
-                      <i class="material-icons mdl-list__item-avatar">arrow_downward</i>
-                      <span>Down</span>
-                      <span id="downOutput" class="mdl-list__item-sub-title"></span>
-                    </span>
-                    <span class="mdl-list__item-secondary-action">
-                      <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="downSwitch">
-                        <input type="checkbox" id="downSwitch" class="mdl-switch__input" checked />
-                      </label>
-                    </span>
-                  </li>
-                </ul>
-              </div>
+              <a onclick="simulateNext()" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" style="position:absolute;bottom:16px;right:16px">Next Individual</a>
             </div>
-          </div>
+            <div class="mdl-shadow--2dp mdl-color--cyan-500 mdl-cell mdl-cell--4-col">
+              <center>
+                <h4 class="mdl-color-text--white" style="margin-bottom:0">Fitness Proportions</h4>
+                <canvas id="fitnessChart" width="235" height="235"></canvas>
+              </center>
+            </div>
+            <div class="demo-separator mdl-cell--1-col"></div>
+            <div class="mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--12-col">
+              <center>
+                <h4 style="margin-bottom:0">Maximum Fitness</h4>
+                <canvas id="maxFitnessChart" width="704" height="704"></canvas>
+              </center>
+            </div>
+          </div></div>
           <div class="demo-cards mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet mdl-grid mdl-grid--no-spacing">
-            <div class="demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--12-col-desktop">
-              <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
-                <h2 class="mdl-card__title-text">Updates</h2>
-              </div>
-              <div class="mdl-card__supporting-text mdl-color-text--grey-600">
-                Non dolore elit adipisicing ea reprehenderit consectetur culpa.
-              </div>
-              <div class="mdl-card__actions mdl-card--border">
-                <a onclick="simulateNext()" class="mdl-button mdl-js-button mdl-js-ripple-effect">Next Individual</a>
+            <div style="height:600px" class="demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--12-col-desktop">
+              <div class="mdl-card__title mdl-card--expand">
+                <div id="neuralNetContainer" style="position:absolute;top:0;bottom:0;left:0;right:0"></div>
+                <div style="width:100%;height:52px;position:absolute;bottom:0;left:0;background-color:rgba(0,0,0,0.2)">
+                  <h4 style="margin:10px">Neural Network</h4>
+                </div>
               </div>
             </div>
             <div class="demo-separator mdl-cell--1-col"></div>
@@ -242,6 +252,9 @@
         </template>
       </div>
     <script src="js/material.min.js"></script>
+    <script src="js/Chart.js"></script>
+    <script src="js/sigma.min.js"></script>
+    <script src="js/sigma.renderers.edgeLabels.min.js"></script>
     <script src="js/synaptic.js"></script>
     <script src="js/game.js"></script>
     <script src="js/data.js"></script>
