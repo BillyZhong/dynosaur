@@ -73,14 +73,24 @@ var simulateIndividual = function(individual, output1Threshold, output2Threshold
 };
 
 var selection = function(){
+  console.log(population);
+  console.log(population.length);
   var tempMaxFit = -1;
   var tempPop = [];
   var tempFitness = [];
   while(population.length > 0){
     var randFitness = Math.random()*totalFitness;
+    console.log("  "+randFitness);
+    console.log("  "+totalFitness);
+    var tot = 0;
+    for(var i = 0; i < population.length; i++){
+      tot += fitness[i];
+    }
+    console.log("  "+tot);
     var selectedIndividual = 0;
     while(randFitness > 0){
       randFitness -= fitness[selectedIndividual];
+      console.log("    "+selectedIndividual);
       selectedIndividual++;
     }
     tempPop.push(population[selectedIndividual-1]);

@@ -241,9 +241,9 @@ var newPop = function(){
   document.getElementById('genNum').innerHTML = generation;
   currentIndividual = 0;
   document.getElementById('indNum').innerHTML = currentIndividual + 1;
-  generatePopulation(18,4);
+  generatePopulation(12,4);
   var labels = [];
-  for(var i = 0; i < 18; i++){
+  for(var i = 0; i < 12; i++){
     labels.push("Individual " + (i+1));
   }
   var fitnessCtx = document.getElementById('fitnessChart').getContext('2d');
