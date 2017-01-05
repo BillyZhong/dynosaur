@@ -196,7 +196,7 @@ var drawNeuralNet = function(individual){
         source: 'i' + i,
         target: 'h' + k,
         size: 0.5,
-        color: '#ccc',
+        color: population[individual].layers.input.list[i].connections.projected[j].weight > 0 ? "#8BC34A" : "#F44336",
         type: 'arrow'
       });
       k++;
@@ -212,7 +212,7 @@ var drawNeuralNet = function(individual){
         source: 'h' + i,
         target: 'o' + k,
         size: 0.5,
-        color: '#ccc',
+        color: population[individual].layers.hidden[0].list[i].connections.projected[j].weight > 0 ? "#8BC34A" : "#F44336",
         type: 'arrow'
       });
       k++;
@@ -241,9 +241,9 @@ var newPop = function(){
   document.getElementById('genNum').innerHTML = generation;
   currentIndividual = 0;
   document.getElementById('indNum').innerHTML = currentIndividual + 1;
-  generatePopulation(16,4);
+  generatePopulation(8,4);
   var labels = [];
-  for(var i = 0; i < 16; i++){
+  for(var i = 0; i < 8; i++){
     labels.push("Individual " + (i+1));
   }
   var fitnessCtx = document.getElementById('fitnessChart').getContext('2d');
