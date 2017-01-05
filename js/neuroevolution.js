@@ -1,7 +1,6 @@
 var z = new Ziggurat();
 var population = [];
 var fitness = [];
-var totalFitness = 0;
 var generation = 1;
 var currentIndividual = 0;
 var inputs = [0,0,0,0,0,0,0,0,0,0];
@@ -14,7 +13,6 @@ var generatePopulation = function(popSize, hiddenNeuronNum){
   population = [];
   fitness = [];
   maxFitness = [];
-  totalFitness = 0;
   generation = 1;
   currentIndividual = 0;
   for(var i = 0; i < popSize; i++){
@@ -53,7 +51,6 @@ var simulateIndividual = function(individual, output1Threshold, output2Threshold
   var sim = setInterval(function(){
     if(r.crashed){
       fitness[individual] = parseInt(r.distanceMeter.digits[0]+r.distanceMeter.digits[1]+r.distanceMeter.digits[2]+r.distanceMeter.digits[3]+r.distanceMeter.digits[4]);
-      totalFitness += fitness[individual];
       clearInterval(sim);
     }
     outputs = population[individual].activate(inputs);
@@ -73,24 +70,18 @@ var simulateIndividual = function(individual, output1Threshold, output2Threshold
 };
 
 var selection = function(){
-  console.log(population);
-  console.log(population.length);
   var tempMaxFit = -1;
   var tempPop = [];
   var tempFitness = [];
+  var totalFitness = 0;
+  for(var i = 0; i < population.length; i++){
+    totalFitness += fitness[i];
+  }
   while(population.length > 0){
     var randFitness = Math.random()*totalFitness;
-    console.log("  "+randFitness);
-    console.log("  "+totalFitness);
-    var tot = 0;
-    for(var i = 0; i < population.length; i++){
-      tot += fitness[i];
-    }
-    console.log("  "+tot);
     var selectedIndividual = 0;
     while(randFitness > 0){
       randFitness -= fitness[selectedIndividual];
-      console.log("    "+selectedIndividual);
       selectedIndividual++;
     }
     tempPop.push(population[selectedIndividual-1]);
