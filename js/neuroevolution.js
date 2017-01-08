@@ -134,6 +134,30 @@ var weightedSelection = function(){
   maxFitness.push(tempMaxFit);
 };
 
+var multipleSelection = function(){
+  var tempMaxFit = -1;
+  var tempPop = [];
+  var tempFitness = [];
+  var totalFitness = 0;
+  for(var i = 0; i < population.length; i++){
+    totalFitness += Math.pow(fitness[i]-30,2);
+    tempMaxFit = Math.max(tempMaxFit, fitness[i]);
+  }
+  for(var i = 0; i < population.length; i++){
+    var randFitness = Math.random()*totalFitness;
+    var selectedIndividual = 0;
+    while(randFitness > 0){
+      randFitness -= Math.pow(fitness[selectedIndividual]-30,2);
+      selectedIndividual++;
+    }
+    tempPop.push(population[selectedIndividual-1].clone());
+    tempFitness.push(fitness[selectedIndividual-1]);
+  }
+  population = tempPop;
+  fitness = tempFitness;
+  maxFitness.push(tempMaxFit);
+};
+
 var elitistSelection = function(){
   var tempMaxFit = -1;
   var tempPop = [];

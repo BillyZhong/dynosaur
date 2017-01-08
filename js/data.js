@@ -381,7 +381,7 @@ var simulateNext = function(){
 };
 
 var evolvePop = function(){
-  weightedSelection();
+  multipleSelection();
   for(var i = 0; i < population.length; i+=2){
     subgraphCrossover(i,i+1);
   }
