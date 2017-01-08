@@ -277,9 +277,9 @@ var newPop = function(){
   document.getElementById('genNum').innerHTML = generation;
   currentIndividual = 0;
   document.getElementById('indNum').innerHTML = currentIndividual + 1;
-  generatePopulation(8,[6,4]);
+  generatePopulation(32,[16,16]);
   var labels = [];
-  for(var i = 0; i < 8; i++){
+  for(var i = 0; i < 32; i++){
     labels.push("Individual " + (i+1));
   }
   var fitnessCtx = document.getElementById('fitnessChart').getContext('2d');
@@ -340,6 +340,7 @@ var newPop = function(){
 
 var simulateNext = function(){
   drawNeuralNet(currentIndividual%population.length);
+  up(0);
   downPressed = 0;
   document.getElementById('indNum').innerHTML = currentIndividual%population.length+1;
   r.tRex.xPos = 25;

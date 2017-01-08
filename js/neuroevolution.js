@@ -269,20 +269,28 @@ var mutation = function(individual){
     for(var j = 0; j < population[individual].layers.hidden[i].size; j++){
       if(Math.random() < mutationRate){
         population[individual].layers.hidden[i].list[j].bias += z.nextGaussian();//*population[individual].layers.hidden[i].list[j].bias;
+        population[individual].layers.hidden[i].list[j].bias = population[individual].layers.hidden[i].list[j].bias > 1 ? 1 : population[individual].layers.hidden[i].list[j].bias;
+        population[individual].layers.hidden[i].list[j].bias = population[individual].layers.hidden[i].list[j].bias < 0 ? 0 : population[individual].layers.hidden[i].list[j].bias;
       }
     }
   }
   if(Math.random() < mutationRate){
     population[individual].layers.output.list[0].bias += z.nextGaussian();//*population[individual].layers.output.list[0].bias;
+    population[individual].layers.output.list[0].bias = population[individual].layers.output.list[0].bias > 1 ? 1 : population[individual].layers.output.list[0].bias;
+    population[individual].layers.output.list[0].bias = population[individual].layers.output.list[0].bias < 0 ? 0 : population[individual].layers.output.list[0].bias;
   }
   if(Math.random() < mutationRate){
     population[individual].layers.output.list[1].bias += z.nextGaussian();//*population[individual].layers.output.list[1].bias;
+    population[individual].layers.output.list[1].bias = population[individual].layers.output.list[1].bias > 1 ? 1 : population[individual].layers.output.list[1].bias;
+    population[individual].layers.output.list[1].bias = population[individual].layers.output.list[1].bias < 0 ? 0 : population[individual].layers.output.list[1].bias;
   }
   for(var i = 0; i < population[individual].layers.hidden.length; i++){
     for(var j = 0; j < population[individual].layers.hidden[i].size; j++){
       for(var k in population[individual].layers.hidden[i].list[j].connections.inputs){
         if(Math.random() < mutationRate){
           population[individual].layers.hidden[i].list[j].connections.inputs[k].weight += z.nextGaussian();//*population[individual].layers.hidden[i].list[j].connections.inputs[k].weight;
+          population[individual].layers.hidden[i].list[j].connections.inputs[k].weight = population[individual].layers.hidden[i].list[j].connections.inputs[k].weight > 1 ? 1 : population[individual].layers.hidden[i].list[j].connections.inputs[k].weight;
+          population[individual].layers.hidden[i].list[j].connections.inputs[k].weight = population[individual].layers.hidden[i].list[j].connections.inputs[k].weight < -1 ? -1 : population[individual].layers.hidden[i].list[j].connections.inputs[k].weight;
         }
       }
     }
@@ -291,6 +299,8 @@ var mutation = function(individual){
     for(var j in population[individual].layers.output.list[i].connections.inputs){
       if(Math.random() < mutationRate){
         population[individual].layers.output.list[i].connections.inputs[j].weight += z.nextGaussian();//*population[individual].layers.output.list[i].connections.inputs[j].weight;
+        population[individual].layers.output.list[i].connections.inputs[j].weight = population[individual].layers.output.list[i].connections.inputs[j].weight > 1 ? 1 : population[individual].layers.output.list[i].connections.inputs[j].weight;
+        population[individual].layers.output.list[i].connections.inputs[j].weight = population[individual].layers.output.list[i].connections.inputs[j].weight < -1 ? -1 : population[individual].layers.output.list[i].connections.inputs[j].weight;
       }
     }
   }
