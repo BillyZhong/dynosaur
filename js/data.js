@@ -335,11 +335,11 @@ var simulateNext = function(){
 };
 
 var evolvePop = function(){
-  elitistSelection();
-  for(var i = 2; i < population.length; i+=2){
+  weightedSelection();
+  for(var i = 0; i < population.length; i+=2){
     crossover(i,i+1,0.5);
   }
-  for(var i = 2; i < population.length; i++){
+  for(var i = 0; i < population.length; i++){
     mutation(i, 0.3);
   }
   maxFitnessChart.data.labels.push(generation);

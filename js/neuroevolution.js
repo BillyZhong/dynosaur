@@ -106,6 +106,33 @@ var selection = function(){
   maxFitness.push(tempMaxFit);
 };
 
+var weightedSelection = function(){
+  var tempMaxFit = -1;
+  var tempPop = [];
+  var tempFitness = [];
+  var totalFitness = 0;
+  for(var i = 0; i < population.length; i++){
+    totalFitness += Math.pow(fitness[i]-30,2);
+  }
+  while(population.length > 0){
+    var randFitness = Math.random()*totalFitness;
+    var selectedIndividual = 0;
+    while(randFitness > 0){
+      randFitness -= Math.pow(fitness[selectedIndividual]-30,2);
+      selectedIndividual++;
+    }
+    tempPop.push(population[selectedIndividual-1]);
+    population.splice(selectedIndividual-1, 1);
+    totalFitness -= Math.pow(fitness[selectedIndividual-1]-30,2);
+    tempMaxFit = Math.max(tempMaxFit, fitness[selectedIndividual-1]);
+    tempFitness.push(fitness[selectedIndividual-1]);
+    fitness.splice(selectedIndividual-1, 1);
+  }
+  population = tempPop;
+  fitness = tempFitness;
+  maxFitness.push(tempMaxFit);
+};
+
 var elitistSelection = function(){
   var tempMaxFit = -1;
   var tempPop = [];
@@ -195,21 +222,21 @@ var mutation = function(individual, mutationRate){
   for(var i = 0; i < population[individual].layers.hidden.length; i++){
     for(var j = 0; j < population[individual].layers.hidden[i].size; j++){
       if(Math.random() < mutationRate){
-        population[individual].layers.hidden[i].list[j].bias += z.nextGaussian()*population[individual].layers.hidden[i].list[j].bias;
+        population[individual].layers.hidden[i].list[j].bias += z.nextGaussian();//*population[individual].layers.hidden[i].list[j].bias;
       }
     }
   }
   if(Math.random() < mutationRate){
-    population[individual].layers.output.list[0].bias += z.nextGaussian()*population[individual].layers.output.list[0].bias;
+    population[individual].layers.output.list[0].bias += z.nextGaussian();//*population[individual].layers.output.list[0].bias;
   }
   if(Math.random() < mutationRate){
-    population[individual].layers.output.list[1].bias += z.nextGaussian()*population[individual].layers.output.list[1].bias;
+    population[individual].layers.output.list[1].bias += z.nextGaussian();//*population[individual].layers.output.list[1].bias;
   }
   for(var i = 0; i < population[individual].layers.hidden.length; i++){
     for(var j = 0; j < population[individual].layers.hidden[i].size; j++){
       for(var k in population[individual].layers.hidden[i].list[j].connections.inputs){
         if(Math.random() < mutationRate){
-          population[individual].layers.hidden[i].list[j].connections.inputs[k].weight += z.nextGaussian()*population[individual].layers.hidden[i].list[j].connections.inputs[k].weight;
+          population[individual].layers.hidden[i].list[j].connections.inputs[k].weight += z.nextGaussian();//*population[individual].layers.hidden[i].list[j].connections.inputs[k].weight;
         }
       }
     }
@@ -217,7 +244,7 @@ var mutation = function(individual, mutationRate){
   for(var i = 0; i < population[individual].layers.output.size; i++){
     for(var j in population[individual].layers.output.list[i].connections.inputs){
       if(Math.random() < mutationRate){
-        population[individual].layers.output.list[i].connections.inputs[j].weight += z.nextGaussian()*population[individual].layers.output.list[i].connections.inputs[j].weight;
+        population[individual].layers.output.list[i].connections.inputs[j].weight += z.nextGaussian();//*population[individual].layers.output.list[i].connections.inputs[j].weight;
       }
     }
   }
