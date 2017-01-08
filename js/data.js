@@ -54,6 +54,34 @@ var down = function(press){
   }
 };
 
+var exportPop = function(){
+  var tempArr = [];
+  for(var i = 0; i < population.length; i++){
+    tempArr.push(population[i].toJSON());
+  }
+  var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tempArr));
+  var ae = document.getElementById('exportJSON');
+  ae.href = 'data:' + data;
+  ae.download = 'population.json';
+  ae.click();
+};
+
+var importPop = function(files){
+  population = [];
+  fitness = [];
+  var fr = new FileReader();
+  fr.onload = function(e) {
+    var res = JSON.parse(e.target.result);
+    for(var i = 0; i < res.length; i++){
+      population.push(synaptic.Network.fromJSON(res[i]));
+      fitness.push(0);
+    }
+    newPop(0);
+  }
+
+  fr.readAsText(files.item(0));
+};
+
 var updateCrossover = function(cr){
   crossoverRate = parseFloat(cr);
   document.getElementById('crossoverVal').innerHTML = cr;
@@ -272,14 +300,16 @@ var stopEvolution = function(){
   clearInterval(evolution);
 };
 
-var newPop = function(){
+var newPop = function(gen){
   generation = 1;
   document.getElementById('genNum').innerHTML = generation;
   currentIndividual = 0;
   document.getElementById('indNum').innerHTML = currentIndividual + 1;
-  generatePopulation(32,[16,16]);
+  if(gen){
+    generatePopulation(32,[16,16]);
+  }
   var labels = [];
-  for(var i = 0; i < 32; i++){
+  for(var i = 0; i < population.length; i++){
     labels.push("Individual " + (i+1));
   }
   var fitnessCtx = document.getElementById('fitnessChart').getContext('2d');
