@@ -4,7 +4,7 @@ var downPressed = 0;
 var fitnessChart;
 var maxFitnessChart;
 var snet;
-var intrvl;
+var evolution;
 
 var up = function(press){
   if(press){
@@ -252,9 +252,12 @@ var drawNeuralNet = function(individual){
   });
 };
 
-var evolve = function(){
-  newPop();
-  intrvl = setInterval(function(){ if(r.crashed){if(currentIndividual%population.length==0&&currentIndividual!=0){evolvePop();} simulateNext();}},1000);
+var startEvolution = function(){
+  evolution = setInterval(function(){ if(r.crashed){if(currentIndividual%population.length==0&&currentIndividual!=0){evolvePop();} simulateNext();}},1000);
+};
+
+var stopEvolution = function(){
+  clearInterval(evolution);
 };
 
 var newPop = function(){
@@ -340,7 +343,7 @@ var evolvePop = function(){
     crossover(i,i+1,0.5);
   }
   for(var i = 0; i < population.length; i++){
-    mutation(i, 0.3);
+    mutation(i, 0.5);
   }
   maxFitnessChart.data.labels.push(generation);
   maxFitnessChart.update();

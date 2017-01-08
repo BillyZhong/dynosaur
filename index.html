@@ -103,12 +103,14 @@
             </svg>
           </div>
           <div class="demo-cards mdl-cell mdl-cell--8-col mdl-grid mdl-grid--no-spacing">
-            <div class="mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-color--blue-grey-500">
+            <div class="mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-color--blue-grey-500" style="position:relative">
               <div id="main-frame-error" class="interstitial-wrapper">
                 <div id="main-content">
                 </div>
               </div>
               <center><canvas id="collision-canvas" width="600" height="150" style="width:600px;height:150px;margin-bottom:10%"></canvas></center>
+              <a onclick="startEvolution()" class="mdl-button mdl-button--primary mdl-js-button mdl-js-ripple-effect" style="position:absolute;bottom:16px;right:160px">Start Evolution</a>
+              <a onclick="stopEvolution()" class="mdl-button mdl-color-text--white mdl-js-button mdl-js-ripple-effect" style="position:absolute;bottom:16px;right:16px">Stop Evolution</a>
             </div>
             <div class="demo-separator mdl-cell--12-col"></div><div class="mdl-grid mdl-grid--no-spacing mdl-cell mdl-cell--12-col">
             <div class="mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--8-col" style="position:relative">
@@ -143,7 +145,7 @@
                   </ul>
                 </div>
               </div>
-              <a onclick="simulateNext()" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" style="position:absolute;bottom:16px;right:16px">Next Individual</a>
+              <a onclick="simulateNext()" class="mdl-button mdl-button--primary mdl-js-button mdl-js-ripple-effect" style="position:absolute;bottom:16px;right:16px">Next Individual</a>
             </div>
             <div class="mdl-shadow--2dp mdl-color--cyan-500 mdl-cell mdl-cell--4-col">
               <center>
