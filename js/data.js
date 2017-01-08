@@ -4,6 +4,7 @@ var downPressed = 0;
 var fitnessChart;
 var maxFitnessChart;
 var snet;
+var intrvl;
 
 var up = function(press){
   if(press){
@@ -157,31 +158,33 @@ var drawNeuralNet = function(individual){
   for (var i = 0; i < 10; i++){
     g.nodes.push({
       id: 'i' + i,
-      label: "" + population[individual].layers.input.list[i].bias,
+      label: "", //+ population[individual].layers.input.list[i].bias,
       x: (i-4.5)*10,
-      y: -50,
+      y: (-(population[individual].layers.hidden.length+1)/2)*40,
       size: 0.5,
       color: '#00BCD4'
     });
   }
 
-  for (var i = 0; i < population[individual].layers.hidden[0].size; i++){
-    g.nodes.push({
-      id: 'h' + i,
-      label: "" + population[individual].layers.hidden[0].list[i].bias,
-      x: (i-(population[individual].layers.hidden[0].size-1)/2)*10,
-      y: 0,
-      size: 0.5,
-      color: '#00BCD4'
-    });
+  for(var i = 0; i < population[individual].layers.hidden.length; i++){
+    for (var j = 0; j < population[individual].layers.hidden[i].size; j++){
+      g.nodes.push({
+        id: 'h' + i + "," + j,
+        label: "", //+ population[individual].layers.hidden[i].list[j].bias,
+        x: (j-(population[individual].layers.hidden[i].size-1)/2)*10,
+        y: (i-(population[individual].layers.hidden.length-1)/2)*40,
+        size: 0.5,
+        color: '#00BCD4'
+      });
+    }
   }
 
   for (var i = 0; i < 2; i++){
     g.nodes.push({
       id: 'o' + i,
-      label: "" + population[individual].layers.output.list[i].bias,
+      label: "", //+ population[individual].layers.output.list[i].bias,
       x: (i-0.5)*10,
-      y: 50,
+      y: ((population[individual].layers.hidden.length+1)/2)*40,
       size: 0.5,
       color: '#00BCD4'
     });
@@ -191,10 +194,10 @@ var drawNeuralNet = function(individual){
     var k = 0;
     for(var j in population[individual].layers.input.list[i].connections.projected){
       g.edges.push({
-        id: 'ei'+i+'h'+k,
-        label: "" + population[individual].layers.input.list[i].connections.projected[j].weight,
+        id: 'ei'+i+'h0,'+k,
+        label: "", //+ population[individual].layers.input.list[i].connections.projected[j].weight,
         source: 'i' + i,
-        target: 'h' + k,
+        target: 'h0,' + k,
         size: 0.5,
         color: population[individual].layers.input.list[i].connections.projected[j].weight > 0 ? "#8BC34A" : "#F44336",
         type: 'arrow'
@@ -203,16 +206,34 @@ var drawNeuralNet = function(individual){
     }
   }
 
-  for (var i = 0; i < population[individual].layers.hidden[0].size; i++){
+  for (var i = 0; i < population[individual].layers.hidden.length-1; i++){
+    for (var j = 0; j < population[individual].layers.hidden[i].size; j++){
+      var l = 0;
+      for(var k in population[individual].layers.hidden[i].list[j].connections.projected){
+        g.edges.push({
+          id: 'eh'+i+','+j+'h'+(i+1)+','+l,
+          label: "", //+ population[individual].layers.hidden[i].list[j].connections.projected[k].weight,
+          source: 'h' + i + ',' + j,
+          target: 'h' + (i+1) + ',' + l,
+          size: 0.5,
+          color: population[individual].layers.hidden[i].list[j].connections.projected[k].weight > 0 ? "#8BC34A" : "#F44336",
+          type: 'arrow'
+        });
+        l++;
+      }
+    }
+  }
+
+  for (var i = 0; i < population[individual].layers.hidden[population[individual].layers.hidden.length-1].size; i++){
     var k = 0;
-    for(var j in population[individual].layers.hidden[0].list[i].connections.projected){
+    for(var j in population[individual].layers.hidden[population[individual].layers.hidden.length-1].list[i].connections.projected){
       g.edges.push({
-        id: 'eh'+i+'o'+k,
-        label: "" + population[individual].layers.hidden[0].list[i].connections.projected[j].weight,
-        source: 'h' + i,
+        id: 'eh'+(population[individual].layers.hidden.length-1)+','+i+'o'+k,
+        label: "", //+ population[individual].layers.input.list[i].connections.projected[j].weight,
+        source: 'h'+(population[individual].layers.hidden.length-1)+','+i,
         target: 'o' + k,
         size: 0.5,
-        color: population[individual].layers.hidden[0].list[i].connections.projected[j].weight > 0 ? "#8BC34A" : "#F44336",
+        color: population[individual].layers.hidden[population[individual].layers.hidden.length-1].list[i].connections.projected[j].weight > 0 ? "#8BC34A" : "#F44336",
         type: 'arrow'
       });
       k++;
@@ -233,7 +254,7 @@ var drawNeuralNet = function(individual){
 
 var evolve = function(){
   newPop();
-  var intrvl = setInterval(function(){ if(r.crashed){if(currentIndividual%population.length==0&&currentIndividual!=0){evolvePop();} simulateNext();}},1000);
+  intrvl = setInterval(function(){ if(r.crashed){if(currentIndividual%population.length==0&&currentIndividual!=0){evolvePop();} simulateNext();}},1000);
 };
 
 var newPop = function(){
@@ -241,7 +262,7 @@ var newPop = function(){
   document.getElementById('genNum').innerHTML = generation;
   currentIndividual = 0;
   document.getElementById('indNum').innerHTML = currentIndividual + 1;
-  generatePopulation(8,4);
+  generatePopulation(8,[6,4]);
   var labels = [];
   for(var i = 0; i < 8; i++){
     labels.push("Individual " + (i+1));
@@ -314,11 +335,11 @@ var simulateNext = function(){
 };
 
 var evolvePop = function(){
-  selection();
-  for(var i = 0; i < population.length; i+=2){
+  elitistSelection();
+  for(var i = 2; i < population.length; i+=2){
     crossover(i,i+1,0.5);
   }
-  for(var i = 0; i < population.length; i++){
+  for(var i = 2; i < population.length; i++){
     mutation(i, 0.3);
   }
   maxFitnessChart.data.labels.push(generation);
