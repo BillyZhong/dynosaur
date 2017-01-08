@@ -35,11 +35,11 @@ var generatePopulation = function(popSize, hiddenNeurons){
     });
     for(var j = 0; j < network.layers.hidden.length; j++){
       for(var k = 0; k < network.layers.hidden[j].size; k++){
-        network.layers.hidden[j].list[k].bias = Math.random();
+        network.layers.hidden[j].list[k].bias = Math.random()*2 - 1;
       }
     }
-    network.layers.output.list[0].bias = Math.random();
-    network.layers.output.list[1].bias = Math.random();
+    network.layers.output.list[0].bias = Math.random()*2 - 1;
+    network.layers.output.list[1].bias = Math.random()*2 - 1;
     for(var j = 0; j < network.layers.hidden.length; j++){
       for(var k = 0; k < network.layers.hidden[j].size; k++){
         for(var l in network.layers.hidden[j].list[k].connections.inputs){
@@ -270,19 +270,19 @@ var mutation = function(individual){
       if(Math.random() < mutationRate){
         population[individual].layers.hidden[i].list[j].bias += z.nextGaussian();//*population[individual].layers.hidden[i].list[j].bias;
         population[individual].layers.hidden[i].list[j].bias = population[individual].layers.hidden[i].list[j].bias > 1 ? 1 : population[individual].layers.hidden[i].list[j].bias;
-        population[individual].layers.hidden[i].list[j].bias = population[individual].layers.hidden[i].list[j].bias < 0 ? 0 : population[individual].layers.hidden[i].list[j].bias;
+        population[individual].layers.hidden[i].list[j].bias = population[individual].layers.hidden[i].list[j].bias < -1 ? -1 : population[individual].layers.hidden[i].list[j].bias;
       }
     }
   }
   if(Math.random() < mutationRate){
     population[individual].layers.output.list[0].bias += z.nextGaussian();//*population[individual].layers.output.list[0].bias;
     population[individual].layers.output.list[0].bias = population[individual].layers.output.list[0].bias > 1 ? 1 : population[individual].layers.output.list[0].bias;
-    population[individual].layers.output.list[0].bias = population[individual].layers.output.list[0].bias < 0 ? 0 : population[individual].layers.output.list[0].bias;
+    population[individual].layers.output.list[0].bias = population[individual].layers.output.list[0].bias < -1 ? -1 : population[individual].layers.output.list[0].bias;
   }
   if(Math.random() < mutationRate){
     population[individual].layers.output.list[1].bias += z.nextGaussian();//*population[individual].layers.output.list[1].bias;
     population[individual].layers.output.list[1].bias = population[individual].layers.output.list[1].bias > 1 ? 1 : population[individual].layers.output.list[1].bias;
-    population[individual].layers.output.list[1].bias = population[individual].layers.output.list[1].bias < 0 ? 0 : population[individual].layers.output.list[1].bias;
+    population[individual].layers.output.list[1].bias = population[individual].layers.output.list[1].bias < -1 ? -1 : population[individual].layers.output.list[1].bias;
   }
   for(var i = 0; i < population[individual].layers.hidden.length; i++){
     for(var j = 0; j < population[individual].layers.hidden[i].size; j++){
