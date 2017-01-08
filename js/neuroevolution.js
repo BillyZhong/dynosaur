@@ -7,7 +7,8 @@ var inputs = [0,0,0,0,0,0,0,0,0,0];
 var outputs = [0,0];
 var outputBinary = [0,0];
 var maxFitness = [];
-//maxGen, elitism
+var crossoverRate = 0.5;
+var mutationRate = 0.5;
 
 var generatePopulation = function(popSize, hiddenNeurons){
   population = [];
@@ -160,7 +161,7 @@ var elitistSelection = function(){
   maxFitness.push(tempMaxFit);
 };
 
-var crossover = function(individual1, individual2, crossoverRate){
+var crossover = function(individual1, individual2){
   for(var i = 0; i < population[individual1].layers.hidden.length; i++){
     for(var j = 0; j < population[individual1].layers.hidden[i].size; j++){
       if(Math.random() < crossoverRate){
@@ -218,7 +219,52 @@ var crossover = function(individual1, individual2, crossoverRate){
   }
 };
 
-var mutation = function(individual, mutationRate){
+var subgraphCrossover = function(individual1, individual2){
+  for(var i = 0; i < population[individual1].layers.hidden.length; i++){
+    for(var j = 0; j < population[individual1].layers.hidden[i].size; j++){
+      if(Math.random() < crossoverRate){
+        var temp = population[individual1].layers.hidden[i].list[j].bias;
+        population[individual1].layers.hidden[i].list[j].bias = population[individual2].layers.hidden[i].list[j].bias;
+        population[individual2].layers.hidden[i].list[j].bias = temp;
+        var in1con = [];
+        var in2con = [];
+        for(var k in population[individual1].layers.hidden[i].list[j].connections.inputs){
+          in1con.push(k);
+        }
+        for(var k in population[individual2].layers.hidden[i].list[j].connections.inputs){
+          in2con.push(k);
+        }
+        for(var k = 0; k < in1con.length; k++){
+          var temp = population[individual1].layers.hidden[i].list[j].connections.inputs[in1con[k]].weight;
+          population[individual1].layers.hidden[i].list[j].connections.inputs[in1con[k]].weight = population[individual2].layers.hidden[i].list[j].connections.inputs[in2con[k]].weight;
+          population[individual2].layers.hidden[i].list[j].connections.inputs[in2con[k]].weight = temp;
+        }
+      }
+    }
+  }
+  for(var i = 0; i < population[individual1].layers.output.size; i++){
+    if(Math.random() < crossoverRate){
+      var temp = population[individual1].layers.output.list[i].bias;
+      population[individual1].layers.output.list[i].bias = population[individual2].layers.output.list[i].bias;
+      population[individual2].layers.output.list[i].bias = temp;
+      var in1con = [];
+      var in2con = [];
+      for(var j in population[individual1].layers.output.list[i].connections.inputs){
+        in1con.push(j);
+      }
+      for(var j in population[individual2].layers.output.list[i].connections.inputs){
+        in2con.push(j);
+      }
+      for(var j = 0; j < in1con.length; j++){
+        var temp = population[individual1].layers.output.list[i].connections.inputs[in1con[j]].weight;
+        population[individual1].layers.output.list[i].connections.inputs[in1con[j]].weight = population[individual2].layers.output.list[i].connections.inputs[in2con[j]].weight;
+        population[individual2].layers.output.list[i].connections.inputs[in2con[j]].weight = temp;
+      }
+    }
+  }
+};
+
+var mutation = function(individual){
   for(var i = 0; i < population[individual].layers.hidden.length; i++){
     for(var j = 0; j < population[individual].layers.hidden[i].size; j++){
       if(Math.random() < mutationRate){

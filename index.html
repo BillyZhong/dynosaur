@@ -227,6 +227,37 @@
                 <i class="material-icons">storage</i>
               </div>
             </div>
+            <div class="demo-separator mdl-cell--1-col"></div>
+            <div class="demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--12-col-desktop">
+              <center>
+                <h4>Crossover Rate</h4>
+                <table style="width:90%">
+                  <tr>
+                    <td>
+                      <p style="width:100%;margin:0">
+                        <input class="mdl-slider mdl-js-slider" onchange="updateCrossover(this.value)" type="range" id="crossoverSlider" min="0" max="1" value="0.5" step="0.1">
+                      </p>
+                    </td>
+                    <td id="crossoverVal">
+                      0.5
+                    </td>
+                  </tr>
+                </table>
+                <h4>Mutation Rate</h4>
+                <table style="width:90%;margin-bottom:24px">
+                  <tr>
+                    <td>
+                      <p style="width:100%;margin:0">
+                        <input class="mdl-slider mdl-js-slider" onchange="updateMutation(this.value)" type="range" id="mutationSlider" min="0" max="1" value="0.5" step="0.1">
+                      </p>
+                    </td>
+                    <td id="mutationVal">
+                      0.5
+                    </td>
+                  </tr>
+                </table>
+              </center>
+            </div>
           </div>
         </div>
       </main>
