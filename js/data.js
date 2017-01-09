@@ -238,7 +238,7 @@ var drawNeuralNet = function(individual){
         label: "", //+ population[individual].layers.input.list[i].connections.projected[j].weight,
         source: 'i' + i,
         target: 'h0,' + k,
-        size: 0.5,
+        size: Math.abs(population[individual].layers.input.list[i].connections.projected[j].weight),
         color: population[individual].layers.input.list[i].connections.projected[j].weight > 0 ? "#8BC34A" : "#F44336",
         type: 'arrow'
       });
@@ -255,7 +255,7 @@ var drawNeuralNet = function(individual){
           label: "", //+ population[individual].layers.hidden[i].list[j].connections.projected[k].weight,
           source: 'h' + i + ',' + j,
           target: 'h' + (i+1) + ',' + l,
-          size: 0.5,
+          size: Math.abs(population[individual].layers.hidden[i].list[j].connections.projected[k].weight),
           color: population[individual].layers.hidden[i].list[j].connections.projected[k].weight > 0 ? "#8BC34A" : "#F44336",
           type: 'arrow'
         });
@@ -272,7 +272,7 @@ var drawNeuralNet = function(individual){
         label: "", //+ population[individual].layers.input.list[i].connections.projected[j].weight,
         source: 'h'+(population[individual].layers.hidden.length-1)+','+i,
         target: 'o' + k,
-        size: 0.5,
+        size: Math.abs(population[individual].layers.hidden[population[individual].layers.hidden.length-1].list[i].connections.projected[j].weight),
         color: population[individual].layers.hidden[population[individual].layers.hidden.length-1].list[i].connections.projected[j].weight > 0 ? "#8BC34A" : "#F44336",
         type: 'arrow'
       });
