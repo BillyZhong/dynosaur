@@ -38,8 +38,9 @@ var generatePopulation = function(popSize, hiddenNeurons){
         network.layers.hidden[j].list[k].bias = Math.random()*2 - 1;
       }
     }
-    network.layers.output.list[0].bias = Math.random()*2 - 1;
-    network.layers.output.list[1].bias = Math.random()*2 - 1;
+    for(var j = 0; j < network.layers.output.size; j++){
+        network.layers.output.list[j].bias = Math.random()*2 - 1;
+    }
     for(var j = 0; j < network.layers.hidden.length; j++){
       for(var k = 0; k < network.layers.hidden[j].size; k++){
         for(var l in network.layers.hidden[j].list[k].connections.inputs){
@@ -113,18 +114,18 @@ var weightedSelection = function(){
   var tempFitness = [];
   var totalFitness = 0;
   for(var i = 0; i < population.length; i++){
-    totalFitness += Math.pow(fitness[i]-30,2);
+    totalFitness += Math.pow(fitness[i]-5,2);
   }
   while(population.length > 0){
     var randFitness = Math.random()*totalFitness;
     var selectedIndividual = 0;
     while(randFitness > 0){
-      randFitness -= Math.pow(fitness[selectedIndividual]-30,2);
+      randFitness -= Math.pow(fitness[selectedIndividual]-5,2);
       selectedIndividual++;
     }
     tempPop.push(population[selectedIndividual-1]);
     population.splice(selectedIndividual-1, 1);
-    totalFitness -= Math.pow(fitness[selectedIndividual-1]-30,2);
+    totalFitness -= Math.pow(fitness[selectedIndividual-1]-5,2);
     tempMaxFit = Math.max(tempMaxFit, fitness[selectedIndividual-1]);
     tempFitness.push(fitness[selectedIndividual-1]);
     fitness.splice(selectedIndividual-1, 1);
@@ -140,14 +141,14 @@ var multipleSelection = function(){
   var tempFitness = [];
   var totalFitness = 0;
   for(var i = 0; i < population.length; i++){
-    totalFitness += Math.pow(fitness[i]-30,2);
+    totalFitness += Math.pow(fitness[i]-5,2);
     tempMaxFit = Math.max(tempMaxFit, fitness[i]);
   }
   for(var i = 0; i < population.length; i++){
     var randFitness = Math.random()*totalFitness;
     var selectedIndividual = 0;
     while(randFitness > 0){
-      randFitness -= Math.pow(fitness[selectedIndividual]-30,2);
+      randFitness -= Math.pow(fitness[selectedIndividual]-5,2);
       selectedIndividual++;
     }
     tempPop.push(population[selectedIndividual-1].clone());
@@ -164,18 +165,18 @@ var elitistSelection = function(){
   var tempFitness = [];
   var totalFitness = 0;
   for(var i = 0; i < population.length; i++){
-    totalFitness += Math.pow(fitness[i]-30,2);
+    totalFitness += Math.pow(fitness[i]-5,2);
   }
   while(population.length > 0){
     var randFitness = Math.random()*totalFitness;
     var selectedIndividual = 0;
     while(randFitness > 0){
-      randFitness -= Math.pow(fitness[selectedIndividual]-30,2);
+      randFitness -= Math.pow(fitness[selectedIndividual]-5,2);
       selectedIndividual++;
     }
     tempPop.push(population[selectedIndividual-1]);
     population.splice(selectedIndividual-1, 1);
-    totalFitness -= Math.pow(fitness[selectedIndividual-1]-30,2);
+    totalFitness -= Math.pow(fitness[selectedIndividual-1]-5,2);
     tempMaxFit = Math.max(tempMaxFit, fitness[selectedIndividual-1]);
     tempFitness.push(fitness[selectedIndividual-1]);
     fitness.splice(selectedIndividual-1, 1);
@@ -195,15 +196,12 @@ var crossover = function(individual1, individual2){
       }
     }
   }
-  if(Math.random() < crossoverRate){
-    var temp = population[individual1].layers.output.list[0].bias;
-    population[individual1].layers.output.list[0].bias = population[individual2].layers.output.list[0].bias;
-    population[individual2].layers.output.list[0].bias = temp;
-  }
-  if(Math.random() < crossoverRate){
-    var temp = population[individual1].layers.output.list[1].bias;
-    population[individual1].layers.output.list[1].bias = population[individual2].layers.output.list[1].bias;
-    population[individual2].layers.output.list[1].bias = temp;
+  for(var i = 0; i < population[individual1].layers.output.size; i++){
+    if(Math.random() < crossoverRate){
+      var temp = population[individual1].layers.output.list[i].bias;
+      population[individual1].layers.output.list[i].bias = population[individual2].layers.output.list[i].bias;
+      population[individual2].layers.output.list[i].bias = temp;
+    }
   }
   for(var i = 0; i < population[individual1].layers.hidden.length; i++){
     for(var j = 0; j < population[individual1].layers.hidden[i].size; j++){
@@ -298,15 +296,12 @@ var mutation = function(individual){
       }
     }
   }
-  if(Math.random() < mutationRate){
-    population[individual].layers.output.list[0].bias += z.nextGaussian();//*population[individual].layers.output.list[0].bias;
-    population[individual].layers.output.list[0].bias = population[individual].layers.output.list[0].bias > 1 ? 1 : population[individual].layers.output.list[0].bias;
-    population[individual].layers.output.list[0].bias = population[individual].layers.output.list[0].bias < -1 ? -1 : population[individual].layers.output.list[0].bias;
-  }
-  if(Math.random() < mutationRate){
-    population[individual].layers.output.list[1].bias += z.nextGaussian();//*population[individual].layers.output.list[1].bias;
-    population[individual].layers.output.list[1].bias = population[individual].layers.output.list[1].bias > 1 ? 1 : population[individual].layers.output.list[1].bias;
-    population[individual].layers.output.list[1].bias = population[individual].layers.output.list[1].bias < -1 ? -1 : population[individual].layers.output.list[1].bias;
+  for(var i = 0; i < population[individual].layers.output.size; i++){
+    if(Math.random() < mutationRate){
+      population[individual].layers.output.list[i].bias += z.nextGaussian();//*population[individual].layers.output.list[0].bias;
+      population[individual].layers.output.list[i].bias = population[individual].layers.output.list[i].bias > 1 ? 1 : population[individual].layers.output.list[i].bias;
+      population[individual].layers.output.list[i].bias = population[individual].layers.output.list[i].bias < -1 ? -1 : population[individual].layers.output.list[i].bias;
+    }
   }
   for(var i = 0; i < population[individual].layers.hidden.length; i++){
     for(var j = 0; j < population[individual].layers.hidden[i].size; j++){
