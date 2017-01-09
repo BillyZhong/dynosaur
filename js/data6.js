@@ -122,33 +122,28 @@ var updateData = function(){
     }
     try {
       document.getElementById('secondObsLeft').innerText = r.horizon.obstacles[1].xPos + 1;
-      inputs[6] = r.horizon.obstacles[1].xPos + 1;
       document.getElementById('secondObsRight').innerText = r.horizon.obstacles[1].xPos + r.horizon.obstacles[1].typeConfig.width * r.horizon.obstacles[0].size - 1;
-      inputs[7] = r.horizon.obstacles[1].xPos + r.horizon.obstacles[1].typeConfig.width * r.horizon.obstacles[0].size - 1;
       document.getElementById('secondObsTop').innerText = -(r.horizon.obstacles[1].yPos + 1) + 139;
-      inputs[8] = -(r.horizon.obstacles[1].yPos + 1) + 139;
       document.getElementById('secondObsBottom').innerText = -(r.horizon.obstacles[1].yPos + r.horizon.obstacles[1].typeConfig.height - 1) + 139;
-      inputs[9] = -(r.horizon.obstacles[1].yPos + r.horizon.obstacles[1].typeConfig.height - 1) + 139;
     }
     catch (e) {
       document.getElementById('secondObsLeft').innerText = 999;
-      inputs[6] = 999;
       document.getElementById('secondObsRight').innerText = 999;
-      inputs[7] = 999;
       document.getElementById('secondObsTop').innerText = 999;
-      inputs[8] = 999;
       document.getElementById('secondObsBottom').innerText = 999;
-      inputs[9] = 999;
     }
-    if(outputBinary[0] && outputBinary[1]){
+    if(outputBinary[0] == 1){
+      up(1);
+    }
+    else if(outputBinary[0] == -1){
       down(1);
     }
     else{
-      up(outputBinary[0]);
-      down(outputBinary[1]);
+      up(0);
+      down(0);
     }
     document.getElementById('upOutput').innerText = outputs[0];
-    if(outputBinary[0]){
+    if(outputBinary[0] == 1){
       document.getElementById('upSwitch').setAttribute('checked',"");
       document.getElementById('upSwitch').parentElement.className += !document.getElementById('upSwitch').parentElement.className.includes(' is-checked') ? ' is-checked' : ''
     }
@@ -157,7 +152,7 @@ var updateData = function(){
       document.getElementById('upSwitch').parentElement.className = document.getElementById('upSwitch').parentElement.className.replace(' is-checked','');
     }
     document.getElementById('downOutput').innerText = outputs[1];
-    if(outputBinary[1]){
+    if(outputBinary[0] == -1){
       document.getElementById('downSwitch').setAttribute('checked',"");
       document.getElementById('downSwitch').parentElement.className += !document.getElementById('downSwitch').parentElement.className.includes(' is-checked') ? ' is-checked' : ''
     }
@@ -195,7 +190,7 @@ var drawNeuralNet = function(individual){
     edges: []
   };
 
-  for (var i = 0; i < population[individual].layers.input.size; i++){
+  for (var i = 0; i < 6; i++){
     g.nodes.push({
       id: 'i' + i,
       label: "", //+ population[individual].layers.input.list[i].bias,
@@ -219,7 +214,7 @@ var drawNeuralNet = function(individual){
     }
   }
 
-  for (var i = 0; i < population[individual].layers.output.size; i++){
+  for (var i = 0; i < 1; i++){
     g.nodes.push({
       id: 'o' + i,
       label: "", //+ population[individual].layers.output.list[i].bias,
@@ -230,7 +225,7 @@ var drawNeuralNet = function(individual){
     });
   }
 
-  for (var i = 0; i < population[individual].layers.input.size; i++){
+  for (var i = 0; i < 6; i++){
     var k = 0;
     for(var j in population[individual].layers.input.list[i].connections.projected){
       g.edges.push({
@@ -374,7 +369,7 @@ var simulateNext = function(){
   downPressed = 0;
   document.getElementById('indNum').innerHTML = currentIndividual%population.length+1;
   r.tRex.xPos = 25;
-  simulateIndividual(currentIndividual%population.length, 0.5, 0.5);
+  simulateIndividual(currentIndividual%population.length);
   currentIndividual++;
   fitnessChart.data.datasets[0].data = fitness;
   fitnessChart.update();
