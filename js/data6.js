@@ -133,9 +133,11 @@ var updateData = function(){
       document.getElementById('secondObsBottom').innerText = 999;
     }
     if(outputBinary[0] == 1){
+      down(0);
       up(1);
     }
     else if(outputBinary[0] == -1){
+      up(0);
       down(1);
     }
     else{
