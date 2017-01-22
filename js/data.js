@@ -306,7 +306,7 @@ var newPop = function(gen){
   currentIndividual = 0;
   document.getElementById('indNum').innerHTML = currentIndividual + 1;
   if(gen){
-    generatePopulation(32,[16,16]);
+    generatePopulation(32,[12,12,12]);
   }
   var labels = [];
   for(var i = 0; i < population.length; i++){
