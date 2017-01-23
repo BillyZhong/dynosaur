@@ -36,10 +36,11 @@ var generateNeuralNetwork = function(individual){
     neurons[i].bias = population[individual].nodes[i-10];
   }
   for(var i = 0; i < population[individual].edges.length; i++){
-    if(!population[individual].edges[i].disabled)
+    if(!population[individual].edges[i].disabled){
       var conn = neurons[population[individual].edges[i].source-1].project(neurons[population[individual].edges[i].dest-1]);
       conn.ID = population[individual].edges[i].innovation;
       conn.weight = population[individual].edges[i].weight;
+    }
   }
   return neurons;
 };
