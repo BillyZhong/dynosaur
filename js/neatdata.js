@@ -184,6 +184,76 @@ var s = setInterval(function(){
   }
 },50);
 
+var drawNeatNeuralNet = function(individual){
+  try {
+    snet.kill();
+  }
+  catch (e) {}
+
+  var g = {
+    nodes: [],
+    edges: []
+  };
+
+  for(var i = 0; i < 10; i++){
+    g.nodes.push({
+      id: '' + (i+1),
+      label: '' + (i+1),
+      x: (i-4.5)*10,
+      y: -50,
+      size: 0.5,
+      color: '#00BCD4'
+    });
+  }
+
+  for(var i = 10; i < 12; i++){
+    g.nodes.push({
+      id: '' + (i+1),
+      label: '' + (i+1),
+      x: (i-10.5)*50,
+      y: 50,
+      size: 0.5,
+      color: '#00BCD4'
+    });
+  }
+
+  for(var i = 2; i < population[individual].nodes.length; i++){
+    g.nodes.push({
+      id: '' + (i+11),
+      label: '' + (i+11),
+      x: (i-2.5)*10,
+      y: Math.random()*80-40,
+      size: 0.5,
+      color: '#00BCD4'
+    });
+  }
+
+  for(var i = 0; i < population[individual].edges.length; i++){
+    if(!population[individual].edges[i].disabled){
+      g.edges.push({
+        id: '' + population[individual].edges[i].innovation,
+        label: '' + population[individual].edges[i].innovation,
+        source: population[individual].edges[i].source,
+        target: population[individual].edges[i].dest,
+        size: Math.abs(population[individual].edges[i].weight),
+        color: population[individual].edges[i].weight > 0 ? "#8BC34A" : "#F44336",
+        type: 'arrow'
+      });
+    }
+  }
+
+  snet = new sigma({
+    graph: g,
+    renderer: {
+      container: document.getElementById('neuralNetContainer'),
+      type: 'canvas'
+    },
+    settings: {
+      edgeLabelSize: 'proportional'
+    }
+  });
+};
+
 var drawNeuralNet = function(individual){
   try {
     snet.kill();
