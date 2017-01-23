@@ -163,3 +163,66 @@ var edgeMutation = function(individual){
     disabled: 0
   });
 };
+
+var synapsis = function(individual1, individual2){
+  var i = 0;
+  var j = 0;
+  var inheritance = [];
+  while(i < population[individual1].edges.length){
+    if(j >= population[individual2].edges.length){
+      inheritance.push({
+        innovation: population[individual1].edges[i].innovation,
+        source: population[individual1].edges[i].source,
+        dest: population[individual1].edges[i].dest,
+        weight: population[individual1].edges[i].weight,
+        disabled: population[individual1].edges[i].disabled
+      });
+      i++
+    }
+    else if(population[individual1].edges[i].innovation != population[individual2].edges[j].innovation){
+      while(population[individual1].edges[i].innovation > population[individual2].edges[j].innovation){
+        j++;
+      }
+      if(j < population[individual2].edges.length && population[individual1].edges[i].innovation != population[individual2].edges[j].innovation){
+        inheritance.push({
+          innovation: population[individual1].edges[i].innovation,
+          source: population[individual1].edges[i].source,
+          dest: population[individual1].edges[i].dest,
+          weight: population[individual1].edges[i].weight,
+          disabled: population[individual1].edges[i].disabled
+        });
+        i++;
+      }
+    }
+    else if(population[individual1].edges[i].innovation == population[individual2].edges[j].innovation){
+      if(Math.random() < 0.5){
+        inheritance.push({
+          innovation: population[individual1].edges[i].innovation,
+          source: population[individual1].edges[i].source,
+          dest: population[individual1].edges[i].dest,
+          weight: population[individual1].edges[i].weight,
+          disabled: population[individual1].edges[i].disabled
+        });
+        i++;
+        j++;
+      }
+      else{
+        inheritance.push({
+          innovation: population[individual2].edges[j].innovation,
+          source: population[individual2].edges[j].source,
+          dest: population[individual2].edges[j].dest,
+          weight: population[individual2].edges[j].weight,
+          disabled: population[individual2].edges[j].disabled
+        });
+        i++;
+        j++;
+      }
+    }
+  }
+  return inheritance;
+};
+
+var graphCrossover = function(individual1, individual2){
+  var genome = {nodes:[],edges:[]};
+  genome.edges = synapsis(individual1, individual2);
+};

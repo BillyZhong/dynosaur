@@ -81,6 +81,10 @@ var simulateIndividual = function(individual, output1Threshold, output2Threshold
   }, 50);
 };
 
+var fitnessFunction = function(s){
+  return Math.pow(s-5,2);
+}
+
 var selection = function(){
   var tempMaxFit = -1;
   var tempPop = [];
@@ -114,18 +118,18 @@ var weightedSelection = function(){
   var tempFitness = [];
   var totalFitness = 0;
   for(var i = 0; i < population.length; i++){
-    totalFitness += Math.pow(fitness[i]-5,2);
+    totalFitness += fitnessFunction(fitness[i]);
   }
   while(population.length > 0){
     var randFitness = Math.random()*totalFitness;
     var selectedIndividual = 0;
     while(randFitness > 0){
-      randFitness -= Math.pow(fitness[selectedIndividual]-5,2);
+      randFitness -= fitnessFunction(fitness[selectedIndividual]);
       selectedIndividual++;
     }
     tempPop.push(population[selectedIndividual-1]);
     population.splice(selectedIndividual-1, 1);
-    totalFitness -= Math.pow(fitness[selectedIndividual-1]-5,2);
+    totalFitness -= fitnessFunction(fitness[selectedIndividual-1]);
     tempMaxFit = Math.max(tempMaxFit, fitness[selectedIndividual-1]);
     tempFitness.push(fitness[selectedIndividual-1]);
     fitness.splice(selectedIndividual-1, 1);
@@ -141,14 +145,14 @@ var multipleSelection = function(){
   var tempFitness = [];
   var totalFitness = 0;
   for(var i = 0; i < population.length; i++){
-    totalFitness += Math.pow(fitness[i]-5,2);
+    totalFitness += fitnessFunction(fitness[i]);
     tempMaxFit = Math.max(tempMaxFit, fitness[i]);
   }
   for(var i = 0; i < population.length; i++){
     var randFitness = Math.random()*totalFitness;
     var selectedIndividual = 0;
     while(randFitness > 0){
-      randFitness -= Math.pow(fitness[selectedIndividual]-5,2);
+      randFitness -= fitnessFunction(fitness[selectedIndividual]);
       selectedIndividual++;
     }
     tempPop.push(population[selectedIndividual-1].clone());
@@ -165,18 +169,18 @@ var elitistSelection = function(){
   var tempFitness = [];
   var totalFitness = 0;
   for(var i = 0; i < population.length; i++){
-    totalFitness += Math.pow(fitness[i]-5,2);
+    totalFitness += fitnessFunction(fitness[i]);
   }
   while(population.length > 0){
     var randFitness = Math.random()*totalFitness;
     var selectedIndividual = 0;
     while(randFitness > 0){
-      randFitness -= Math.pow(fitness[selectedIndividual]-5,2);
+      randFitness -= fitnessFunction(fitness[selectedIndividual]);
       selectedIndividual++;
     }
     tempPop.push(population[selectedIndividual-1]);
     population.splice(selectedIndividual-1, 1);
-    totalFitness -= Math.pow(fitness[selectedIndividual-1]-5,2);
+    totalFitness -= fitnessFunction(fitness[selectedIndividual-1]);
     tempMaxFit = Math.max(tempMaxFit, fitness[selectedIndividual-1]);
     tempFitness.push(fitness[selectedIndividual-1]);
     fitness.splice(selectedIndividual-1, 1);
