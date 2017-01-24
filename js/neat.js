@@ -8,8 +8,6 @@ var inputs = [0,0,0,0,0,0,0,0,0,0];
 var outputs = [0,0];
 var outputBinary = [0,0];
 var maxFitness = [];
-var crossoverRate = 0.5;
-var mutationRate = 0.5;
 
 var generateNeatPopulation = function(popSize){
   population = [];
@@ -299,6 +297,40 @@ var edgeMutation = function(individual){
     weight: Math.random()*2-1,
     disabled: 0
   });
+};
+
+var biasMutation = function(individual, mutationRate, negateMutationRate){
+  for(var i = 0; i < population[individual].nodes.length; i++){
+    if(Math.random() < mutationRate){
+      population[individual].nodes[i] += z.nextGaussian();
+      population[individual].nodes[i] = population[individual].nodes[i] > 1 ? 1 : population[individual].nodes[i];
+      population[individual].nodes[i] = population[individual].nodes[i] < -1 ? -1 : population[individual].nodes[i];
+    }
+    if(Math.random() < negateMutationRate){
+      population[individual].nodes[i] = -population[individual].nodes[i];
+    }
+  }
+};
+
+var disableMutation = function(individual, mutationRate){
+  for(var i = 0; i < population[individual].edges.length; i++){
+    if(Math.random() < mutationRate){
+      population[individual].edges[i].disabled = !population[individual].edges[i].disabled;
+    }
+  }
+};
+
+var weightMutation = function(individual, mutationRate, negateMutationRate){
+  for(var i = 0; i < population[individual].edges.length; i++){
+    if(Math.random() < mutationRate){
+      population[individual].edges[i].weight += z.nextGaussian();
+      population[individual].edges[i].weight = population[individual].edges[i].weight > 1 ? 1 : population[individual].edges[i].weight;
+      population[individual].edges[i].weight = population[individual].edges[i].weight < -1 ? -1 : population[individual].edges[i].weight;
+    }
+    if(Math.random() < negateMutationRate){
+      population[individual].edges[i].weight = -population[individual].edges[i].weight;
+    }
+  }
 };
 
 var synapsis = function(individual1, individual2){

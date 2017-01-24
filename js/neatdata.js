@@ -82,16 +82,6 @@ var importPop = function(files){
   fr.readAsText(files.item(0));
 };
 
-var updateCrossover = function(cr){
-  crossoverRate = parseFloat(cr);
-  document.getElementById('crossoverVal').innerHTML = cr;
-};
-
-var updateMutation = function(mr){
-  mutationRate = parseFloat(mr);
-  document.getElementById('mutationVal').innerHTML = mr;
-};
-
 var updateData = function(){
   if(!r.crashed){
     document.getElementById('fitnessScore').innerHTML = isNaN(parseInt(r.distanceMeter.digits[0]+r.distanceMeter.digits[1]+r.distanceMeter.digits[2]+r.distanceMeter.digits[3]+r.distanceMeter.digits[4])) ? 0 : parseInt(r.distanceMeter.digits[0]+r.distanceMeter.digits[1]+r.distanceMeter.digits[2]+r.distanceMeter.digits[3]+r.distanceMeter.digits[4]);
