@@ -183,38 +183,67 @@ var dfs = function(graph, visited, node, src){
 
 var edgeMutation = function(individual){
   var innov;
-  var cycle = 1;
-  while(cycle){
-    var ex = 1;
-    while(ex){
-      var tsrc = Math.ceil(Math.random()*(population[individual].nodes.length+8));
-      tsrc = tsrc > 10 ? tsrc+2 : tsrc;
-      var tdest = Math.ceil(Math.random()*(tsrc > 10 ? population[individual].nodes.length - 1 : population[individual].nodes.length))+10;
-      tdest = tdest > tsrc-1 && tsrc > 10 ? tdest+1 : tdest;
-      innov = {source: tsrc, dest: tdest};
-      ex = 0;
-      for(var i = 0; i < innovations.length; i++){
-        if(innovations[i].source == innov.source && innovations[i].dest == innov.dest){
-          ex = 1;
-          break;
-        }
+  var adjhash = [];
+  for(var i = 0; i < population[individual].nodes.length + 10; i++){
+    adjhash.push([]);
+    for(var j = 0; j < population[individual].nodes.length + 10; j++){
+      adjhash[i].push(0);
+    }
+  }
+  for(var i = 0; i < population[individual].edges.length; i++){
+    adjhash[population[individual].edges[i].source-1][population[individual].edges[i].dest-1] = 1;
+  }
+  var nonedges = [];
+  for(var i = 0; i < 10; i++){
+    for(var j = 10; j < population[individual].nodes.length + 10; j++){
+      if(!adjhash[i][j]){
+        nonedges.push({source:i+1,dest:j+1});
       }
     }
-    var adjlist = [];
+  }
+  for(var i = 12; i < population[individual].nodes.length + 10; i++){
+    for(var j = 10; j < population[individual].nodes.length + 10; j++){
+      if(!adjhash[i][j] && i!=j){
+        nonedges.push({source:i+1,dest:j+1});
+      }
+    }
+  }
+  var adjlist = [];
+  for(var i = 0; i < 10+population[individual].nodes.length; i++){
+    adjlist.push([]);
+  }
+  for(var i = 0; i < population[individual].edges.length; i++){
+    adjlist[population[individual].edges[i].source-1].push(population[individual].edges[i].dest-1);
+  }
+  var cycle = 1;
+  while(cycle){
+    if(nonedges.length == 0){
+      return;
+    }
+    var rne = Math.floor(Math.random()*nonedges.length);
+    innov = nonedges[rne];
     var visited = [];
     for(var i = 0; i < 10+population[individual].nodes.length; i++){
-      adjlist.push([]);
       visited.push(0);
-    }
-    for(var i = 0; i < population[individual].edges.length; i++){
-      adjlist[population[individual].edges[i].source-1].push(population[individual].edges[i].dest-1);
     }
     dfs(adjlist, visited, innov.dest-1, innov.source-1);
     cycle = visited[innov.source-1];
+    if(cycle){
+      nonedges.splice(rne, 1);
+    }
   }
-  innovations.push(innov);
+  var innovp = -1;
+  for(var i = 0; i < innovations.length; i++){
+    if(innovations[i].source == innov.source && innovations[i].dest == innov.dest){
+      innovp = i+1;
+    }
+  }
+  if(innovp == -1){
+    innovations.push(innov);
+    innovp = innovations.length;
+  }
   population[individual].edges.push({
-    innovation: innovations.length,
+    innovation: innovp,
     source: innov.source,
     dest: innov.dest,
     weight: Math.random()*2-1,
