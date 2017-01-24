@@ -81,8 +81,8 @@ var simulateIndividual = function(individual, output1Threshold, output2Threshold
   }, 50);
 };
 
-var fitnessFunction = function(s){
-  return Math.pow(s-5,2);
+var fitnessFunction = function(f){
+  return Math.pow(f-5,2);
 }
 
 var selection = function(){
