@@ -221,7 +221,7 @@ var drawNeatNeuralNet = function(individual){
     g.nodes.push({
       id: '' + (i+11),
       label: '' + (i+11),
-      x: (i-2.5)*10,
+      x: Math.random()*80-40,
       y: Math.random()*80-40,
       size: 0.5,
       color: '#00BCD4'

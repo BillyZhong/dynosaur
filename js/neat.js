@@ -70,8 +70,8 @@ var activateNeuralNetwork = function(neurons){
   outputs[1] = activateNeuron(neurons[11],activated);
 };
 
-var fitnessFunction = function(f){
-  return f;
+var fitnessFunction = function(f, individual){
+  return Math.ceil(Math.pow(f,2)/Math.sqrt(1+population[individual].edges.length));
 }
 
 var simulateIndividual = function(individual, output1Threshold, output2Threshold){
@@ -79,7 +79,7 @@ var simulateIndividual = function(individual, output1Threshold, output2Threshold
   var net = generateNeuralNetwork(individual);
   var sim = setInterval(function(){
     if(r.crashed){
-      fitness[individual] = fitnessFunction(parseInt(r.distanceMeter.digits[0]+r.distanceMeter.digits[1]+r.distanceMeter.digits[2]+r.distanceMeter.digits[3]+r.distanceMeter.digits[4]));
+      fitness[individual] = fitnessFunction(parseInt(r.distanceMeter.digits[0]+r.distanceMeter.digits[1]+r.distanceMeter.digits[2]+r.distanceMeter.digits[3]+r.distanceMeter.digits[4]),individual);
       clearInterval(sim);
     }
     activateNeuralNetwork(net);
