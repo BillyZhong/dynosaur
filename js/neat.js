@@ -78,8 +78,9 @@ var activateNeuralNetwork = function(neurons){
       }
     }
     else{
-      for(var i in neurons[nodestack[nodestack.length-1]].connections.inputs){
-        nodestack.push(neurons[nodestack[nodestack.length-1]].connections.inputs[i].from.ID-1);
+      var tl = nodestack.length-1;
+      for(var i in neurons[nodestack[tl]].connections.inputs){
+        nodestack.push(neurons[nodestack[tl]].connections.inputs[i].from.ID-1);
       }
     }
   }
@@ -205,13 +206,25 @@ var nodeMutation = function(individual){
   }
 };
 
-var dfs = function(graph, visited, node, src){
-  if(!visited[src] && !visited[node]){
-    visited[node] = 1;
-    for(var i = 0; i < graph[node].length; i++){
-      dfs(graph, visited, graph[node][i], src);
+var dfs = function(graph, individual, dest, src){
+  var visited = [];
+  for(var i = 0; i < 10+population[individual].nodes.length; i++){
+    visited.push(0);
+  }
+  var nodestack = [dest];
+  while(nodestack.length != 0){
+    var node = nodestack.pop();
+    if(!visited[src] && !visited[node]){
+      visited[node] = 1;
+      if(node == src){
+        return true;
+      }
+      for(var i = 0; i < graph[node].length; i++){
+        nodestack.push(graph[node][i]);
+      }
     }
   }
+  return false;
 }
 
 var edgeMutation = function(individual){
@@ -255,12 +268,7 @@ var edgeMutation = function(individual){
     }
     var rne = Math.floor(Math.random()*nonedges.length);
     innov = nonedges[rne];
-    var visited = [];
-    for(var i = 0; i < 10+population[individual].nodes.length; i++){
-      visited.push(0);
-    }
-    dfs(adjlist, visited, innov.dest-1, innov.source-1);
-    cycle = visited[innov.source-1];
+    cycle = dfs(adjlist, individual, innov.dest-1, innov.source-1);
     if(cycle){
       nonedges.splice(rne, 1);
     }
