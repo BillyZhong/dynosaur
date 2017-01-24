@@ -269,7 +269,7 @@ var newPop = function(gen){
   document.getElementById('indNum').innerHTML = currentIndividual + 1;
   maxFitness = [];
   if(gen){
-    generateNeatPopulation(8);
+    generateNeatPopulation(32);
   }
   var labels = [];
   for(var i = 0; i < population.length; i++){
@@ -349,10 +349,10 @@ var evolvePop = function(){
     population[i] = graphCrossover(i,i+1);
   }
   for(var i = 0; i < population.length; i++){
-    if(Math.random() < 0.5){
+    if(Math.random() < 0.25){
       edgeMutation(i);
     }
-    if(Math.random() < 0.25){
+    if(Math.random() < 0.15){
       nodeMutation(i);
     }
   }
