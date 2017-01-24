@@ -185,7 +185,7 @@ var synapsis = function(individual1, individual2){
         i++;
       }
       else if(population[individual1].edges[i].innovation != population[individual2].edges[j].innovation){
-        while(population[individual1].edges[i].innovation > population[individual2].edges[j].innovation){
+        while(j < population[individual2].edges.length && population[individual1].edges[i].innovation > population[individual2].edges[j].innovation){
           j++;
         }
         if(j < population[individual2].edges.length && population[individual1].edges[i].innovation != population[individual2].edges[j].innovation){
@@ -226,8 +226,8 @@ var synapsis = function(individual1, individual2){
     }
   }
   else if(fitness[individual1] == fitness[individual2]){
-    while(i < population[individual1].edges.length && j < population[individual2].edges.length){
-      if(j >= population[individual2].edges.length || population[individual1].edges[i].innovation < population[individual2].edges[j].innovation){
+    while(i < population[individual1].edges.length || j < population[individual2].edges.length){
+      if(j >= population[individual2].edges.length){
         inheritance.push({
           innovation: population[individual1].edges[i].innovation,
           source: population[individual1].edges[i].source,
@@ -237,7 +237,27 @@ var synapsis = function(individual1, individual2){
         });
         i++;
       }
-      else if(i >= population[individual1].edges.length || population[individual1].edges[i].innovation > population[individual2].edges[j].innovation){
+      else if(i >= population[individual1].edges.length){
+        inheritance.push({
+          innovation: population[individual2].edges[j].innovation,
+          source: population[individual2].edges[j].source,
+          dest: population[individual2].edges[j].dest,
+          weight: population[individual2].edges[j].weight,
+          disabled: population[individual2].edges[j].disabled
+        });
+        j++;
+      }
+      else if(population[individual1].edges[i].innovation < population[individual2].edges[j].innovation){
+        inheritance.push({
+          innovation: population[individual1].edges[i].innovation,
+          source: population[individual1].edges[i].source,
+          dest: population[individual1].edges[i].dest,
+          weight: population[individual1].edges[i].weight,
+          disabled: population[individual1].edges[i].disabled
+        });
+        i++;
+      }
+      else if(population[individual1].edges[i].innovation > population[individual2].edges[j].innovation){
         inheritance.push({
           innovation: population[individual2].edges[j].innovation,
           source: population[individual2].edges[j].source,
@@ -278,6 +298,14 @@ var synapsis = function(individual1, individual2){
 
 var graphCrossover = function(individual1, individual2){
   var genome = {nodes:[],edges:[]};
+  if(fitness[individual1] < fitness[individual2]){
+    var tg = population[individual1];
+    var tf = fitness[individual1];
+    population[individual1] = population[individual2];
+    fitness[individual1] = fitness[individual2];
+    population[individual2] = tg;
+    fitness[individual2] = tf;
+  }
   genome.edges = synapsis(individual1, individual2);
   var maxnode = 12;
   for(var i = 0; i < genome.edges.length; i++){
