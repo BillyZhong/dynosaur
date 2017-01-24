@@ -13,6 +13,7 @@ var mutationRate = 0.5;
 
 var generateNeatPopulation = function(popSize){
   population = [];
+  innovations = [];
   fitness = [];
   maxFitness = [];
   generation = 1;
@@ -73,49 +74,102 @@ var fitnessFunction = function(f){
   return f;
 }
 
+var simulateIndividual = function(individual, output1Threshold, output2Threshold){
+  r.restart();
+  var net = generateNeuralNetwork(individual);
+  var sim = setInterval(function(){
+    if(r.crashed){
+      fitness[individual] = fitnessFunction(parseInt(r.distanceMeter.digits[0]+r.distanceMeter.digits[1]+r.distanceMeter.digits[2]+r.distanceMeter.digits[3]+r.distanceMeter.digits[4]));
+      clearInterval(sim);
+    }
+    activateNeuralNetwork(net);
+    if(outputs[0] > output1Threshold){
+      outputBinary[0] = 1;
+    }
+    else{
+      outputBinary[0] = 0;
+    }
+    if(outputs[1] > output2Threshold){
+      outputBinary[1] = 1;
+    }
+    else{
+      outputBinary[1] = 0;
+    }
+  }, 50);
+};
+
+var selection = function(){
+  var tempMaxFit = -1;
+  var tempPop = [];
+  var tempFitness = [];
+  var totalFitness = 0;
+  for(var i = 0; i < population.length; i++){
+    totalFitness += fitness[i];
+  }
+  while(population.length > 0){
+    var randFitness = Math.random()*totalFitness;
+    var selectedIndividual = 0;
+    while(randFitness > 0){
+      randFitness -= fitness[selectedIndividual];
+      selectedIndividual++;
+    }
+    tempPop.push(population[selectedIndividual-1]);
+    population.splice(selectedIndividual-1, 1);
+    totalFitness -= fitness[selectedIndividual-1];
+    tempMaxFit = Math.max(tempMaxFit, fitness[selectedIndividual-1]);
+    tempFitness.push(fitness[selectedIndividual-1]);
+    fitness.splice(selectedIndividual-1, 1);
+  }
+  population = tempPop;
+  fitness = tempFitness;
+  maxFitness.push(tempMaxFit);
+};
+
 var nodeMutation = function(individual){
-  var dis = 1;
-  var p;
-  while(dis){
-    p = Math.floor(Math.random()*population[individual].edges.length);
-    dis = population[individual].edges[p].disabled;
-  }
-  population[individual].edges[p].disabled = 1;
-  population[individual].nodes.push(Math.random()*2-1);
-  var innovp = -1;
-  for(var i = 0; i < innovations.length; i++){
-    if(innovations[i].source == population[individual].edges[p].source && innovations[i].dest == 10+population[individual].nodes.length){
-      innovp = i+1;
+  if(population[individual].edges.length > 0){
+    var dis = 1;
+    var p;
+    while(dis){
+      p = Math.floor(Math.random()*population[individual].edges.length);
+      dis = population[individual].edges[p].disabled;
     }
-  }
-  if(innovp == -1){
-    innovations.push({source:population[individual].edges[p].source,dest:10+population[individual].nodes.length});
-    innovp = innovations.length;
-  }
-  population[individual].edges.push({
-    innovation: innovp,
-    source: population[individual].edges[p].source,
-    dest: 10+population[individual].nodes.length,
-    weight: Math.random()*2-1,
-    disabled: 0
-  });
-  var innovp = -1;
-  for(var i = 0; i < innovations.length; i++){
-    if(innovations[i].source == 10+population[individual].nodes.length && innovations[i].dest == population[individual].edges[p].dest){
-      innovp = i+1;
+    population[individual].edges[p].disabled = 1;
+    population[individual].nodes.push(Math.random()*2-1);
+    var innovp = -1;
+    for(var i = 0; i < innovations.length; i++){
+      if(innovations[i].source == population[individual].edges[p].source && innovations[i].dest == 10+population[individual].nodes.length){
+        innovp = i+1;
+      }
     }
+    if(innovp == -1){
+      innovations.push({source:population[individual].edges[p].source,dest:10+population[individual].nodes.length});
+      innovp = innovations.length;
+    }
+    population[individual].edges.push({
+      innovation: innovp,
+      source: population[individual].edges[p].source,
+      dest: 10+population[individual].nodes.length,
+      weight: Math.random()*2-1,
+      disabled: 0
+    });
+    var innovp = -1;
+    for(var i = 0; i < innovations.length; i++){
+      if(innovations[i].source == 10+population[individual].nodes.length && innovations[i].dest == population[individual].edges[p].dest){
+        innovp = i+1;
+      }
+    }
+    if(innovp == -1){
+      innovations.push({source:10+population[individual].nodes.length,dest:population[individual].edges[p].dest});
+      innovp = innovations.length;
+    }
+    population[individual].edges.push({
+      innovation: innovp,
+      source: 10+population[individual].nodes.length,
+      dest: population[individual].edges[p].dest,
+      weight: Math.random()*2-1,
+      disabled: 0
+    });
   }
-  if(innovp == -1){
-    innovations.push({source:10+population[individual].nodes.length,dest:population[individual].edges[p].dest});
-    innovp = innovations.length;
-  }
-  population[individual].edges.push({
-    innovation: innovp,
-    source: 10+population[individual].nodes.length,
-    dest: population[individual].edges[p].dest,
-    weight: Math.random()*2-1,
-    disabled: 0
-  });
 };
 
 var dfs = function(graph, visited, node, src){

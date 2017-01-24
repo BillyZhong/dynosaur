@@ -55,11 +55,7 @@ var down = function(press){
 };
 
 var exportPop = function(){
-  var tempArr = [];
-  for(var i = 0; i < population.length; i++){
-    tempArr.push(population[i].toJSON());
-  }
-  var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tempArr));
+  var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({population: population, innovations: innovations}));
   var ae = document.getElementById('exportJSON');
   ae.href = 'data:' + data;
   ae.download = 'population.json';
@@ -69,12 +65,16 @@ var exportPop = function(){
 var importPop = function(files){
   population = [];
   fitness = [];
+  innovations = [];
   var fr = new FileReader();
   fr.onload = function(e) {
     var res = JSON.parse(e.target.result);
-    for(var i = 0; i < res.length; i++){
-      population.push(synaptic.Network.fromJSON(res[i]));
+    for(var i = 0; i < res.population.length; i++){
+      population.push(res.population[i]);
       fitness.push(0);
+    }
+    for(var i = 0; i < res.innovations.length; i++){
+      innovations.push(res.innovations[i]);
     }
     newPop(0);
   }
@@ -254,114 +254,6 @@ var drawNeatNeuralNet = function(individual){
   });
 };
 
-var drawNeuralNet = function(individual){
-  try {
-    snet.kill();
-  }
-  catch (e) {}
-
-  var g = {
-    nodes: [],
-    edges: []
-  };
-
-  for (var i = 0; i < population[individual].layers.input.size; i++){
-    g.nodes.push({
-      id: 'i' + i,
-      label: "", //+ population[individual].layers.input.list[i].bias,
-      x: (i-(population[individual].layers.input.size-1)/2)*10,
-      y: (-(population[individual].layers.hidden.length+1)/2)*40,
-      size: 0.5,
-      color: '#00BCD4'
-    });
-  }
-
-  for(var i = 0; i < population[individual].layers.hidden.length; i++){
-    for (var j = 0; j < population[individual].layers.hidden[i].size; j++){
-      g.nodes.push({
-        id: 'h' + i + "," + j,
-        label: "", //+ population[individual].layers.hidden[i].list[j].bias,
-        x: (j-(population[individual].layers.hidden[i].size-1)/2)*10,
-        y: (i-(population[individual].layers.hidden.length-1)/2)*40,
-        size: 0.5,
-        color: '#00BCD4'
-      });
-    }
-  }
-
-  for (var i = 0; i < population[individual].layers.output.size; i++){
-    g.nodes.push({
-      id: 'o' + i,
-      label: "", //+ population[individual].layers.output.list[i].bias,
-      x: (i-0.5)*10,
-      y: ((population[individual].layers.hidden.length+1)/2)*40,
-      size: 0.5,
-      color: '#00BCD4'
-    });
-  }
-
-  for (var i = 0; i < population[individual].layers.input.size; i++){
-    var k = 0;
-    for(var j in population[individual].layers.input.list[i].connections.projected){
-      g.edges.push({
-        id: 'ei'+i+'h0,'+k,
-        label: "", //+ population[individual].layers.input.list[i].connections.projected[j].weight,
-        source: 'i' + i,
-        target: 'h0,' + k,
-        size: Math.abs(population[individual].layers.input.list[i].connections.projected[j].weight),
-        color: population[individual].layers.input.list[i].connections.projected[j].weight > 0 ? "#8BC34A" : "#F44336",
-        type: 'arrow'
-      });
-      k++;
-    }
-  }
-
-  for (var i = 0; i < population[individual].layers.hidden.length-1; i++){
-    for (var j = 0; j < population[individual].layers.hidden[i].size; j++){
-      var l = 0;
-      for(var k in population[individual].layers.hidden[i].list[j].connections.projected){
-        g.edges.push({
-          id: 'eh'+i+','+j+'h'+(i+1)+','+l,
-          label: "", //+ population[individual].layers.hidden[i].list[j].connections.projected[k].weight,
-          source: 'h' + i + ',' + j,
-          target: 'h' + (i+1) + ',' + l,
-          size: Math.abs(population[individual].layers.hidden[i].list[j].connections.projected[k].weight),
-          color: population[individual].layers.hidden[i].list[j].connections.projected[k].weight > 0 ? "#8BC34A" : "#F44336",
-          type: 'arrow'
-        });
-        l++;
-      }
-    }
-  }
-
-  for (var i = 0; i < population[individual].layers.hidden[population[individual].layers.hidden.length-1].size; i++){
-    var k = 0;
-    for(var j in population[individual].layers.hidden[population[individual].layers.hidden.length-1].list[i].connections.projected){
-      g.edges.push({
-        id: 'eh'+(population[individual].layers.hidden.length-1)+','+i+'o'+k,
-        label: "", //+ population[individual].layers.input.list[i].connections.projected[j].weight,
-        source: 'h'+(population[individual].layers.hidden.length-1)+','+i,
-        target: 'o' + k,
-        size: Math.abs(population[individual].layers.hidden[population[individual].layers.hidden.length-1].list[i].connections.projected[j].weight),
-        color: population[individual].layers.hidden[population[individual].layers.hidden.length-1].list[i].connections.projected[j].weight > 0 ? "#8BC34A" : "#F44336",
-        type: 'arrow'
-      });
-      k++;
-    }
-  }
-
-  snet = new sigma({
-    graph: g,
-    renderer: {
-      container: document.getElementById('neuralNetContainer'),
-      type: 'canvas'
-    },
-    settings: {
-      edgeLabelSize: 'proportional'
-    }
-  });
-};
-
 var startEvolution = function(){
   evolution = setInterval(function(){ if(r.crashed){if(currentIndividual%population.length==0&&currentIndividual!=0){evolvePop();} simulateNext();}},1000);
 };
@@ -375,8 +267,9 @@ var newPop = function(gen){
   document.getElementById('genNum').innerHTML = generation;
   currentIndividual = 0;
   document.getElementById('indNum').innerHTML = currentIndividual + 1;
+  maxFitness = [];
   if(gen){
-    generatePopulation(32,[12,12,12]);
+    generateNeatPopulation(8);
   }
   var labels = [];
   for(var i = 0; i < population.length; i++){
@@ -439,7 +332,7 @@ var newPop = function(gen){
 };
 
 var simulateNext = function(){
-  drawNeuralNet(currentIndividual%population.length);
+  drawNeatNeuralNet(currentIndividual%population.length);
   up(0);
   downPressed = 0;
   document.getElementById('indNum').innerHTML = currentIndividual%population.length+1;
@@ -451,12 +344,17 @@ var simulateNext = function(){
 };
 
 var evolvePop = function(){
-  weightedSelection();
+  selection();
   for(var i = 0; i < population.length; i+=2){
-    subgraphCrossover(i,i+1);
+    population[i] = graphCrossover(i,i+1);
   }
   for(var i = 0; i < population.length; i++){
-    mutation(i);
+    if(Math.random() < 0.5){
+      edgeMutation(i);
+    }
+    if(Math.random() < 0.25){
+      nodeMutation(i);
+    }
   }
   maxFitnessChart.data.labels.push(generation);
   maxFitnessChart.update();

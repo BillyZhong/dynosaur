@@ -305,6 +305,7 @@ var newPop = function(gen){
   document.getElementById('genNum').innerHTML = generation;
   currentIndividual = 0;
   document.getElementById('indNum').innerHTML = currentIndividual + 1;
+  maxFitness = [];
   if(gen){
     generatePopulation(32,[12,12,12]);
   }
