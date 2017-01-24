@@ -46,17 +46,6 @@ var generateNeuralNetwork = function(individual){
   return neurons;
 };
 
-var activateNeuron = function(neuron, activated){
-  if(activated[neuron.ID-1]){
-    return;
-  }
-  for(var i in neuron.connections.inputs){
-    activateNeuron(neuron.connections.inputs[i].from,activated);
-  }
-  activated[neuron.ID-1] = 1;
-  return neuron.activate();
-}
-
 var activateNeuralNetwork = function(neurons){
   var activated = [];
   for(var i = 0; i < 10; i++){
@@ -66,8 +55,34 @@ var activateNeuralNetwork = function(neurons){
   for(var i = 10; i < neurons.length-10; i++){
     activated.push(0);
   }
-  outputs[0] = activateNeuron(neurons[10],activated);
-  outputs[1] = activateNeuron(neurons[11],activated);
+  var nodestack = [11, 10];
+  while(nodestack.length != 0){
+    if(activated[nodestack[nodestack.length-1]]){
+      nodestack.pop();
+      continue;
+    }
+    activated[nodestack[nodestack.length-1]] = 1;
+    for(var i in neurons[nodestack[nodestack.length-1]].connections.inputs){
+      activated[nodestack[nodestack.length-1]] = activated[nodestack[nodestack.length-1]] && activated[neurons[nodestack[nodestack.length-1]].connections.inputs[i].from.ID-1];
+    }
+    if(activated[nodestack[nodestack.length-1]]){
+      var tn = nodestack.pop();
+      if(tn == 10){
+        outputs[0] = neurons[tn].activate();
+      }
+      else if(tn == 11){
+        outputs[1] = neurons[tn].activate();
+      }
+      else{
+        neurons[tn].activate();
+      }
+    }
+    else{
+      for(var i in neurons[nodestack[nodestack.length-1]].connections.inputs){
+        nodestack.push(neurons[nodestack[nodestack.length-1]].connections.inputs[i].from.ID-1);
+      }
+    }
+  }
 };
 
 var fitnessFunction = function(f, individual){
