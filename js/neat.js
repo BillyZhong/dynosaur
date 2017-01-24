@@ -145,14 +145,23 @@ var nodeMutation = function(individual){
       innovations.push({source:population[individual].edges[p].source,dest:10+population[individual].nodes.length});
       innovp = innovations.length;
     }
-    population[individual].edges.push({
+    var innovpos = population[individual].edges.length;
+    for(var i = population[individual].edges.length-1; i >= 0; i--){
+      if(population[individual].edges[i].innovation > innovp){
+        innovpos = i;
+      }
+      else{
+        break;
+      }
+    }
+    population[individual].edges.splice(innovpos, 0, {
       innovation: innovp,
       source: population[individual].edges[p].source,
       dest: 10+population[individual].nodes.length,
       weight: Math.random()*2-1,
       disabled: 0
     });
-    var innovp = -1;
+    innovp = -1;
     for(var i = 0; i < innovations.length; i++){
       if(innovations[i].source == 10+population[individual].nodes.length && innovations[i].dest == population[individual].edges[p].dest){
         innovp = i+1;
@@ -162,7 +171,16 @@ var nodeMutation = function(individual){
       innovations.push({source:10+population[individual].nodes.length,dest:population[individual].edges[p].dest});
       innovp = innovations.length;
     }
-    population[individual].edges.push({
+    innovpos = population[individual].edges.length;
+    for(var i = population[individual].edges.length-1; i >= 0; i--){
+      if(population[individual].edges[i].innovation > innovp){
+        innovpos = i;
+      }
+      else{
+        break;
+      }
+    }
+    population[individual].edges.splice(innovpos, 0, {
       innovation: innovp,
       source: 10+population[individual].nodes.length,
       dest: population[individual].edges[p].dest,
@@ -242,7 +260,16 @@ var edgeMutation = function(individual){
     innovations.push(innov);
     innovp = innovations.length;
   }
-  population[individual].edges.push({
+  var innovpos = population[individual].edges.length;
+  for(var i = population[individual].edges.length-1; i >= 0; i--){
+    if(population[individual].edges[i].innovation > innovp){
+      innovpos = i;
+    }
+    else{
+      break;
+    }
+  }
+  population[individual].edges.splice(innovpos, 0, {
     innovation: innovp,
     source: innov.source,
     dest: innov.dest,
