@@ -44,7 +44,7 @@ var generateNeuralNetwork = function(individual){
   return neurons;
 };
 
-var activateNeuralNetwork = function(neurons){
+var activateNeuralNetworkDFS = function(neurons){
   var activated = [];
   for(var i = 0; i < 10; i++){
     neurons[i].activate(inputs[i]);
@@ -84,9 +84,20 @@ var activateNeuralNetwork = function(neurons){
   }
 };
 
+var activateNeuralNetwork = function(neurons){
+  for(var i = 0; i < 10; i++){
+    neurons[i].activate(inputs[i]);
+  }
+  for(var i = 12; i < neurons.length; i++){
+    neurons[i].activate();
+  }
+  outputs[0] = neurons[10].activate();
+  outputs[1] = neurons[11].activate();
+};
+
 var fitnessFunction = function(f, individual){
   return Math.ceil(Math.pow(f,2)/Math.sqrt(1+population[individual].edges.length));
-}
+};
 
 var simulateIndividual = function(individual, output1Threshold, output2Threshold){
   r.restart();
@@ -259,18 +270,11 @@ var edgeMutation = function(individual){
   for(var i = 0; i < population[individual].edges.length; i++){
     adjlist[population[individual].edges[i].source-1].push(population[individual].edges[i].dest-1);
   }
-  var cycle = 1;
-  while(cycle){
-    if(nonedges.length == 0){
-      return;
-    }
-    var rne = Math.floor(Math.random()*nonedges.length);
-    innov = nonedges[rne];
-    cycle = dfs(adjlist, individual, innov.dest-1, innov.source-1);
-    if(cycle){
-      nonedges.splice(rne, 1);
-    }
+  if(nonedges.length == 0){
+    return;
   }
+  var rne = Math.floor(Math.random()*nonedges.length);
+  innov = nonedges[rne];
   var innovp = -1;
   for(var i = 0; i < innovations.length; i++){
     if(innovations[i].source == innov.source && innovations[i].dest == innov.dest){

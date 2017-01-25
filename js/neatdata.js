@@ -227,7 +227,7 @@ var drawNeatNeuralNet = function(individual){
         target: population[individual].edges[i].dest,
         size: Math.abs(population[individual].edges[i].weight),
         color: population[individual].edges[i].weight > 0 ? "#8BC34A" : "#F44336",
-        type: 'arrow'
+        type: population[individual].edges[i].source == population[individual].edges[i].dest ? 'curvedArrow' : 'arrow'
       });
     }
   }
