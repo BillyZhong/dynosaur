@@ -259,7 +259,7 @@ var newPop = function(gen){
   document.getElementById('indNum').innerHTML = currentIndividual + 1;
   maxFitness = [];
   if(gen){
-    generateNeatPopulation(32);
+    generateNeatPopulation(4);
   }
   var labels = [];
   for(var i = 0; i < population.length; i++){
@@ -334,19 +334,26 @@ var simulateNext = function(){
 };
 
 var evolvePop = function(){
+  console.log("selection()");
   selection();
   for(var i = 0; i < population.length; i+=2){
+    console.log("graphCrossover(" + i +","+ (i+1) + ")");
     population[i+1] = graphCrossover(i,i+1);
   }
   for(var i = 0; i < population.length; i++){
     if(Math.random() < 0.25){
+      console.log("edgeMutation(" + i +")");
       edgeMutation(i);
     }
     if(Math.random() < 0.15){
+      console.log("nodeMutation(" + i +")");
       nodeMutation(i);
     }
+    console.log("biasMutation(" + i +")");
     biasMutation(i, 0.25, 0.10);
+    console.log("disableMutation(" + i +")");
     disableMutation(i, 0.05, 0.10);
+    console.log("weightMutation(" + i +")");
     weightMutation(i, 0.25, 0.10);
   }
   maxFitnessChart.data.labels.push(generation);

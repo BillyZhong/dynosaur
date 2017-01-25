@@ -151,13 +151,14 @@ var selection = function(){
 };
 
 var nodeMutation = function(individual){
-  if(population[individual].edges.length > 0){
-    var dis = 1;
-    var p;
-    while(dis){
-      p = Math.floor(Math.random()*population[individual].edges.length);
-      dis = population[individual].edges[p].disabled;
+  var enabledEdges = [];
+  for(var i = 0; i < population[individual].edges.length; i++){
+    if(!population[individual].edges[i].disabled){
+      enabledEdges.push(i);
     }
+  }
+  if(enabledEdges.length > 0){
+    var p = enabledEdges[Math.floor(Math.random()*enabledEdges.length)];
     population[individual].edges[p].disabled = 1;
     population[individual].nodes.push(Math.random()*2-1);
     var innovp = -1;
