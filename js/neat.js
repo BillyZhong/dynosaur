@@ -258,17 +258,10 @@ var edgeMutation = function(individual){
   }
   for(var i = 12; i < population[individual].nodes.length + 10; i++){
     for(var j = 10; j < population[individual].nodes.length + 10; j++){
-      if(!adjhash[i][j] && i!=j){
+      if(!adjhash[i][j]){
         nonedges.push({source:i+1,dest:j+1});
       }
     }
-  }
-  var adjlist = [];
-  for(var i = 0; i < 10+population[individual].nodes.length; i++){
-    adjlist.push([]);
-  }
-  for(var i = 0; i < population[individual].edges.length; i++){
-    adjlist[population[individual].edges[i].source-1].push(population[individual].edges[i].dest-1);
   }
   if(nonedges.length == 0){
     return;
