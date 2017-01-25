@@ -336,7 +336,7 @@ var simulateNext = function(){
 var evolvePop = function(){
   selection();
   for(var i = 0; i < population.length; i+=2){
-    population[i] = graphCrossover(i,i+1);
+    population[i+1] = graphCrossover(i,i+1);
   }
   for(var i = 0; i < population.length; i++){
     if(Math.random() < 0.25){
