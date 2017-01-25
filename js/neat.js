@@ -492,3 +492,50 @@ var graphCrossover = function(individual1, individual2){
   }
   return genome;
 };
+
+var distanceFunction = function(individual1, individual2, c1, c2, c3){
+  var N = 1+Math.max(population[individual1].edges.length, population[individual2].edges.length);
+  var E = 0;
+  var D = 0;
+  var W = 0;
+  var m = 0;
+  var genehash = [[],[]];
+  for(var i = 0; i < innovations.length; i++){
+    genehash[0].push(2);
+    genehash[1].push(2);
+  }
+  for(var i = 0; i < population[individual1].edges.length; i++){
+    genehash[0][population[individual1].edges[i].innovation-1] = population[individual1].edges[i].weight;
+  }
+  for(var i = 0; i < population[individual2].edges.length; i++){
+    genehash[1][population[individual2].edges[i].innovation-1] = population[individual2].edges[i].weight;
+  }
+  for(var i = 0; i < innovations.length; i++){
+    if(genehash[0][i] != 2 || genehash[1][i] != 2){
+      if(genehash[0][i] != 2 && genehash[1][i] != 2){
+        W += Math.abs(genehash[0][i]-genehash[1][i]);
+        m++;
+      }
+      else if(genehash[0][i] != 2){
+        if(i+1 > population[individual2].edges[population[individual2].edges.length-1].innovation){
+          E++;
+        }
+        else{
+          D++;
+        }
+      }
+      else if(genehash[1][i] != 2){
+        if(i+1 > population[individual1].edges[population[individual1].edges.length-1].innovation){
+          E++;
+        }
+        else{
+          D++;
+        }
+      }
+    }
+  }
+  if(m > 0){
+    W /= m;
+  }
+  return c1*E/N + c2*D/N + c3*W;
+};
