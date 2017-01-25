@@ -345,6 +345,9 @@ var evolvePop = function(){
     if(Math.random() < 0.15){
       nodeMutation(i);
     }
+    biasMutation(i, 0.25, 0.10);
+    disableMutation(i, 0.05, 0.10);
+    weightMutation(i, 0.25, 0.10);
   }
   maxFitnessChart.data.labels.push(generation);
   maxFitnessChart.update();

@@ -316,10 +316,13 @@ var biasMutation = function(individual, mutationRate, negateMutationRate){
   }
 };
 
-var disableMutation = function(individual, mutationRate){
+var disableMutation = function(individual, disableRate, enableRate){
   for(var i = 0; i < population[individual].edges.length; i++){
-    if(Math.random() < mutationRate){
-      population[individual].edges[i].disabled = !population[individual].edges[i].disabled;
+    if(Math.random() < disableRate){
+      population[individual].edges[i].disabled = 1;
+    }
+    else if(Math.random() < enableRate){
+      population[individual].edges[i].disabled = 0;
     }
   }
 };
