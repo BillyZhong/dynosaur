@@ -8,16 +8,27 @@ var inputs = [0,0,0,0,0,0,0,0,0,0];
 var outputs = [0,0];
 var outputBinary = [0,0];
 var maxFitness = [];
+var species = [];
+
+/*
+Sample Species
+{
+  model:,
+  mean:,
+  stdev:,
+  members:[]
+*/
 
 var generateNeatPopulation = function(popSize){
   population = [];
   innovations = [];
   fitness = [];
   maxFitness = [];
+  species = [];
   generation = 1;
   currentIndividual = 0;
   for(var i = 0; i < popSize; i++){
-    var genome = {nodes:[Math.random()*2-1, Math.random()*2-1],edges:[]};
+    var genome = {species:0, nodes:[Math.random()*2-1, Math.random()*2-1],edges:[]};
     population.push(genome);
     fitness.push(0);
   }
@@ -463,7 +474,7 @@ var synapsis = function(individual1, individual2){
 };
 
 var graphCrossover = function(individual1, individual2){
-  var genome = {nodes:[],edges:[]};
+  var genome = {species:0, nodes:[],edges:[]};
   if(fitness[individual1] < fitness[individual2]){
     var tg = population[individual1];
     var tf = fitness[individual1];
@@ -518,7 +529,7 @@ var distanceFunction = function(individual1, individual2, c1, c2, c3){
         m++;
       }
       else if(genehash[0][i] != 2){
-        if(i+1 > population[individual2].edges[population[individual2].edges.length-1].innovation){
+        if(population[individual2].edges.length == 0 || i+1 > population[individual2].edges[population[individual2].edges.length-1].innovation){
           E++;
         }
         else{
@@ -526,7 +537,7 @@ var distanceFunction = function(individual1, individual2, c1, c2, c3){
         }
       }
       else if(genehash[1][i] != 2){
-        if(i+1 > population[individual1].edges[population[individual1].edges.length-1].innovation){
+        if(population[individual1].edges.length == 0 || i+1 > population[individual1].edges[population[individual1].edges.length-1].innovation){
           E++;
         }
         else{
