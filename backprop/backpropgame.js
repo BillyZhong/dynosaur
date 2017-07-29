@@ -11,11 +11,11 @@
  * @constructor
  * @export
  */
-function Runner(outerContainerId, neatId, opt_config) {
+function Runner(outerContainerId, bot, opt_config) {
   Runner.instance_ = this;
 
+  this.bot = bot;
   this.outerContainerEl = outerContainerId;
-  this.neatId = neatId;
   this.containerEl = null;
   this.snackbarEl = null;
   // this.detailsButton = this.outerContainerEl.querySelector('#details-button');
@@ -590,7 +590,7 @@ Runner.prototype = {
       if (!collision) {
         this.frame++;
         this.frame%=3;
-        if(neat.sim > 0){
+        if(this.bot){
           if(this.frame==0){
             var inputs = [0,0,0,0,0,0,0,0,0,0];
             inputs[0] = -this.tRex.yPos + 93;
@@ -620,13 +620,12 @@ Runner.prototype = {
               inputs[9] = 999;
             }
             var outputBinary = neat.p.population[this.neatId].activateNeuralNetwork(inputs);
-            if(outputBinary[1]){
+            if(outputBinary[0] && outputBinary[1]){
               this.down(1);
-              this.up(0);
             }
-            else if(outputBinary[0]){
-              this.down(0);
-              this.up(1);
+            else{
+              this.up(outputBinary[0]);
+              this.down(outputBinary[1]);
             }
           }
         }
@@ -685,8 +684,10 @@ Runner.prototype = {
     // Keys.
     this.outerContainerEl.addEventListener(Runner.events.KEYDOWN, this);
     this.outerContainerEl.addEventListener(Runner.events.KEYUP, this);
-    document.addEventListener(Runner.events.KEYDOWN, this);
-    document.addEventListener(Runner.events.KEYUP, this);
+    if(!this.bot){
+      document.addEventListener(Runner.events.KEYDOWN, this);
+      document.addEventListener(Runner.events.KEYUP, this);
+    }
 
     if (IS_MOBILE) {
       // Mobile only touch devices.
@@ -735,8 +736,10 @@ Runner.prototype = {
   stopListening: function() {
     this.outerContainerEl.removeEventListener(Runner.events.KEYDOWN, this);
     this.outerContainerEl.removeEventListener(Runner.events.KEYUP, this);
-    document.removeEventListener(Runner.events.KEYDOWN, this);
-    document.outerContainerEl.removeEventListener(Runner.events.KEYUP, this);
+    if(!this.bot){
+      document.removeEventListener(Runner.events.KEYDOWN, this);
+      document.outerContainerEl.removeEventListener(Runner.events.KEYUP, this);
+    }
 
     if (IS_MOBILE) {
       this.touchController.removeEventListener(Runner.events.TOUCHSTART, this);
@@ -753,6 +756,7 @@ Runner.prototype = {
    * @param {Event} e
    */
   onKeyDown: function(e) {
+    console.log(e);
     // Prevent native page scrolling whilst tapping on mobile.
     if (IS_MOBILE) {
       e.preventDefault();
@@ -797,6 +801,7 @@ Runner.prototype = {
    * @param {Event} e
    */
   onKeyUp: function(e) {
+    console.log(e);
     var keyCode = String(e.keyCode);
     var isjumpKey = Runner.keycodes.JUMP[keyCode] ||
        e.type == Runner.events.TOUCHEND ||
