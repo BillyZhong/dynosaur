@@ -1,6 +1,22 @@
 // Copyright (c) 2014 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+
+var config = {
+  populationSize : 30,
+  addEdgeMutationRate : 0.15,
+  addNodeMutationRate : 0.10,
+  deleteEdgeMutationRate : 0.10,
+  biasMutationRate : 0.25,
+  negateBiasMutationRate : 0.10,
+  disableGeneMutationRate : 0.05,
+  enableGeneMutationRate : 0.10,
+  edgeMutationRate : 0.25,
+  negateEdgeMutationRate : 0.10,
+  crossoverRate : 0.5,
+  outputThreshold : [0.5,0.5]
+};
+
 (function() {
 'use strict';
 /**
@@ -10,14 +26,11 @@
  * @constructor
  * @export
  */
-function Runner(outerContainerId, opt_config) {
-  // Singleton
-  if (Runner.instance_) {
-    return Runner.instance_;
-  }
+function Runner(outerContainerId, neatId, opt_config) {
   Runner.instance_ = this;
 
-  this.outerContainerEl = document.querySelector(outerContainerId);
+  this.outerContainerEl = outerContainerId;
+  this.neatId = neatId;
   this.containerEl = null;
   this.snackbarEl = null;
   // this.detailsButton = this.outerContainerEl.querySelector('#details-button');
@@ -72,34 +85,46 @@ function Runner(outerContainerId, opt_config) {
   // }
 
   this.gamepadPreviousKeyDown = false;
+
+  this.downpressed = 0;
+
+  this.up = function(press){
+    var event = new Event(press ? 'keydown':'keyup');
+    event.keyCode = 38;
+    event.which = event.keyCode;
+    event.altKey = false;
+    event.ctrlKey = true;
+    event.shiftKey = false;
+    event.metaKey = false;
+    this.outerContainerEl.dispatchEvent(event);
+  };
+
+  this.down = function(press){
+    if(press && !this.downPressed){
+      var event = new Event('keydown');
+      event.keyCode = 40;
+      event.which = event.keyCode;
+      event.altKey = false;
+      event.ctrlKey = true;
+      event.shiftKey = false;
+      event.metaKey = false;
+      this.outerContainerEl.dispatchEvent(event);
+      this.downPressed = 1;
+    }
+    else if(!press && this.downPressed){
+      var event = new Event('keyup');
+      event.keyCode = 40;
+      event.which = event.keyCode;
+      event.altKey = false;
+      event.ctrlKey = true;
+      event.shiftKey = false;
+      event.metaKey = false;
+      this.outerContainerEl.dispatchEvent(event);
+      this.downPressed = 0;
+    }
+  };
 }
 window['Runner'] = Runner;
-
-
-/**
- * Default game width.
- * @const
- */
-var DEFAULT_WIDTH = 600;
-
-/**
- * Frames per second.
- * @const
- */
-var FPS = config.fps;
-
-/** @const */
-var IS_HIDPI = window.devicePixelRatio > 1;
-
-/** @const */
-var IS_IOS = window.navigator.userAgent.indexOf('CriOS') > -1 ||
-    window.navigator.userAgent == 'UIWebViewForStaticFileContent';
-
-/** @const */
-var IS_MOBILE = window.navigator.userAgent.indexOf('Mobi') > -1 || IS_IOS;
-
-/** @const */
-var IS_TOUCH_ENABLED = 'ontouchstart' in window;
 
 /**
  * Default game configuration.
@@ -123,9 +148,34 @@ Runner.config = {
   MOBILE_SPEED_COEFFICIENT: 1.2,
   RESOURCE_TEMPLATE_ID: 'audio-resources',
   SPEED: 6,
-  SPEED_DROP_COEFFICIENT: 3
+  SPEED_DROP_COEFFICIENT: 3,
+  FPS : 60
 };
 
+/**
+ * Default game width.
+ * @const
+ */
+var DEFAULT_WIDTH = 600;
+
+/**
+ * Frames per second.
+ * @const
+ */
+var FPS = Runner.config.FPS;
+
+/** @const */
+var IS_HIDPI = window.devicePixelRatio > 1;
+
+/** @const */
+var IS_IOS = window.navigator.userAgent.indexOf('CriOS') > -1 ||
+    window.navigator.userAgent == 'UIWebViewForStaticFileContent';
+
+/** @const */
+var IS_MOBILE = window.navigator.userAgent.indexOf('Mobi') > -1 || IS_IOS;
+
+/** @const */
+var IS_TOUCH_ENABLED = 'ontouchstart' in window;
 
 /**
  * Default dimensions.
@@ -349,7 +399,7 @@ Runner.prototype = {
 
     // Player canvas container.
     this.canvas = createCanvas(this.containerEl, this.dimensions.WIDTH,
-        this.dimensions.HEIGHT, Runner.classes.PLAYER);
+        this.dimensions.HEIGHT, this.id, Runner.classes.PLAYER);
 
     this.canvasCtx = this.canvas.getContext('2d');
     this.canvasCtx.fillStyle = '#f7f7f7';
@@ -483,7 +533,6 @@ Runner.prototype = {
     this.tRex.playingIntro = false;
     this.containerEl.style.webkitAnimation = '';
     this.playCount++;
-    document.getElementById('collision-canvas').getContext('2d').clearRect(0,0,600,150);
 
     // Handle tabbing off the page. Pause the current game.
     document.addEventListener(Runner.events.VISIBILITY,
@@ -536,26 +585,47 @@ Runner.prototype = {
 
       // Check for collisions.
       var collision = hasObstacles &&
-          checkForCollision(this.horizon.obstacles[0], this.tRex, document.getElementById('collision-canvas').getContext('2d'), this.horizon.obstacles);
+          checkForCollision(this.horizon.obstacles[0], this.tRex, this.horizon.obstacles);
 
       if (!collision) {
         this.frame++;
         this.frame%=3;
-        if(this.frame==0){
-          updateData();
-          if(sim){
-            activateNeuralNetwork(net);
-            if(outputs[0] > outputThreshold[0]){
-              outputBinary[0] = 1;
+        if(neat.sim > 0){
+          if(this.frame==0){
+            var inputs = [0,0,0,0,0,0,0,0,0,0];
+            inputs[0] = -this.tRex.yPos + 93;
+            inputs[1] = this.currentSpeed;
+            try {
+              inputs[2] = this.horizon.obstacles[0].xPos + 1;
+              inputs[3] = this.horizon.obstacles[0].xPos + this.horizon.obstacles[0].typeConfig.width * this.horizon.obstacles[0].size - 1;
+              inputs[4] = -(this.horizon.obstacles[0].yPos + 1) + 139;
+              inputs[5] = -(this.horizon.obstacles[0].yPos + this.horizon.obstacles[0].typeConfig.height - 1) + 139;
+            }
+            catch (e) {
+              inputs[2] = 999;
+              inputs[3] = 999;
+              inputs[4] = 999;
+              inputs[5] = 999;
+            }
+            try {
+              inputs[6] = this.horizon.obstacles[1].xPos + 1;
+              inputs[7] = this.horizon.obstacles[1].xPos + this.horizon.obstacles[1].typeConfig.width * this.horizon.obstacles[0].size - 1;
+              inputs[8] = -(this.horizon.obstacles[1].yPos + 1) + 139;
+              inputs[9] = -(this.horizon.obstacles[1].yPos + this.horizon.obstacles[1].typeConfig.height - 1) + 139;
+            }
+            catch (e) {
+              inputs[6] = 999;
+              inputs[7] = 999;
+              inputs[8] = 999;
+              inputs[9] = 999;
+            }
+            var outputBinary = neat.p.population[this.neatId].activateNeuralNetwork(inputs);
+            if(outputBinary[0] && outputBinary[1]){
+              this.down(1);
             }
             else{
-              outputBinary[0] = 0;
-            }
-            if(outputs[1] > outputThreshold[1]){
-              outputBinary[1] = 1;
-            }
-            else{
-              outputBinary[1] = 0;
+              this.up(outputBinary[0]);
+              this.down(outputBinary[1]);
             }
           }
         }
@@ -581,10 +651,8 @@ Runner.prototype = {
       this.raq();
     }
     else{
-      if(sim){
-        fitness[ind] = fitnessFunction(parseInt(r.distanceMeter.digits[0]+r.distanceMeter.digits[1]+r.distanceMeter.digits[2]+r.distanceMeter.digits[3]+r.distanceMeter.digits[4]),ind);
-      }
-      sim = 0;
+      neat.p.population[this.neatId].fitnessFunction(isNaN(parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4])) ? 0 : parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4]));
+      neat.sim--;
     }
   },
 
@@ -614,6 +682,8 @@ Runner.prototype = {
    */
   startListening: function() {
     // Keys.
+    this.outerContainerEl.addEventListener(Runner.events.KEYDOWN, this);
+    this.outerContainerEl.addEventListener(Runner.events.KEYUP, this);
     document.addEventListener(Runner.events.KEYDOWN, this);
     document.addEventListener(Runner.events.KEYUP, this);
 
@@ -662,8 +732,10 @@ Runner.prototype = {
    * Remove all listeners.
    */
   stopListening: function() {
+    this.outerContainerEl.removeEventListener(Runner.events.KEYDOWN, this);
+    this.outerContainerEl.removeEventListener(Runner.events.KEYUP, this);
     document.removeEventListener(Runner.events.KEYDOWN, this);
-    document.removeEventListener(Runner.events.KEYUP, this);
+    document.outerContainerEl.removeEventListener(Runner.events.KEYUP, this);
 
     if (IS_MOBILE) {
       this.touchController.removeEventListener(Runner.events.TOUCHSTART, this);
@@ -689,7 +761,7 @@ Runner.prototype = {
       if (!this.crashed && (Runner.keycodes.JUMP[e.keyCode] ||
            e.type == Runner.events.TOUCHSTART || e.type == Runner.events.GAMEPADCONNECTED)) {
         if (!this.activated) {
-          this.loadSounds();
+          //this.loadSounds();
           this.activated = true;
           // errorPageController.trackEasterEgg();
         }
@@ -842,7 +914,6 @@ Runner.prototype = {
       this.time = getTimeStamp();
       this.containerEl.classList.remove(Runner.classes.CRASHED);
       this.clearCanvas();
-      document.getElementById('collision-canvas').getContext('2d').clearRect(0,0,600,150);
       this.distanceMeter.reset(this.highestScore);
       this.horizon.reset();
       this.tRex.reset();
@@ -1121,7 +1192,7 @@ function checkForCollision(obstacle, tRex, opt_canvasCtx, obstacles) {
 
   // Debug outer box
   if (opt_canvasCtx) {
-    drawAllCollisionBoxes(opt_canvasCtx, tRexBox, obstacles);
+    //drawAllCollisionBoxes(opt_canvasCtx, tRexBox, obstacles);
   }
 
   // Simple outer bounds check.
@@ -1142,7 +1213,7 @@ function checkForCollision(obstacle, tRex, opt_canvasCtx, obstacles) {
 
         // Draw boxes for debug.
         if (opt_canvasCtx) {
-          drawCollisionBoxes(opt_canvasCtx, adjTrexBox, adjObstacleBox);
+          //drawCollisionBoxes(opt_canvasCtx, adjTrexBox, adjObstacleBox);
         }
 
         if (crashed) {

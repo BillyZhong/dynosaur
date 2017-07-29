@@ -1,5 +1,4 @@
 var r = new Runner('.interstitial-wrapper');
-var naivebot = 0;
 var downPressed = 0;
 var fitnessChart;
 var maxFitnessChart;
@@ -158,22 +157,6 @@ var updateData = function(){
   }
 };
 
-var s = setInterval(function(){
-  updateData();
-  if(naivebot){
-    if(parseInt(document.getElementById('firstObsRight').innerText) < 50){
-      down(1);
-    }
-    else if(parseInt(document.getElementById('firstObsLeft').innerText) < 120){
-      down(0);
-      up(1);
-    }
-    else{
-      down(1);
-    }
-  }
-},50);
-
 var drawNeatNeuralNet = function(individual){
   try {
     snet.kill();
@@ -259,7 +242,7 @@ var newPop = function(gen){
   document.getElementById('indNum').innerHTML = currentIndividual + 1;
   maxFitness = [];
   if(gen){
-    generateNeatPopulation(30);
+    generateNeatPopulation(config.populationSize);
   }
   var labels = [];
   for(var i = 0; i < population.length; i++){
@@ -327,7 +310,7 @@ var simulateNext = function(){
   downPressed = 0;
   document.getElementById('indNum').innerHTML = currentIndividual%population.length+1;
   r.tRex.xPos = 25;
-  simulateIndividual(currentIndividual%population.length, 0.5, 0.5);
+  simulateIndividual(currentIndividual%population.length, config.outputThreshold[0], config.outputThreshold[1]);
   currentIndividual++;
   fitnessChart.data.datasets[0].data = fitness;
   fitnessChart.update();
@@ -339,15 +322,18 @@ var evolvePop = function(){
     population[2*population.length/3 + i/2] = graphCrossover(i,i+1);
   }
   for(var i = 0; i < population.length; i++){
-    if(Math.random() < 0.25){
+    if(Math.random() < config.addEdgeMutationRate){
       edgeMutation(i);
     }
-    if(Math.random() < 0.15){
+    if(Math.random() < config.addNodeMutationRate){
       nodeMutation(i);
     }
-    biasMutation(i, 0.25, 0.10);
-    disableMutation(i, 0.05, 0.10);
-    weightMutation(i, 0.25, 0.10);
+    if(Math.random() < config.deleteEdgeMutationRate){
+      deleteEdgeMutation(i);
+    }
+    biasMutation(i, config.biasMutationRate, config.negateBiasMutationRate);
+    disableMutation(i, config.disableGeneMutationRate, config.enableGeneMutationRate);
+    weightMutation(i, config.edgeMutationRate, config.negateEdgeMutationRate);
   }
   maxFitnessChart.data.labels.push(generation);
   maxFitnessChart.update();

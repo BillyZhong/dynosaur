@@ -1,3 +1,18 @@
+var config = {
+  populationSize : 30,
+  addEdgeMutationRate : 0.15,
+  addNodeMutationRate : 0.10,
+  deleteEdgeMutationRate : 0.10,
+  biasMutationRate : 0.25,
+  negateBiasMutationRate : 0.10,
+  disableGeneMutationRate : 0.05,
+  enableGeneMutationRate : 0.10,
+  edgeMutationRate : 0.25,
+  negateEdgeMutationRate : 0.10,
+  crossoverRate : 0.5,
+  outputThreshold : [0.5,0.5],
+  fps : 60
+};
 var z = new Ziggurat();
 var population = [];
 var fitness = [];
@@ -9,6 +24,10 @@ var outputs = [0,0];
 var outputBinary = [0,0];
 var maxFitness = [];
 var species = [];
+var net;
+var ind;
+var sim = 0;
+var outputThreshold = [0.5,0.5];
 
 /*
 Sample Species
@@ -112,26 +131,11 @@ var fitnessFunction = function(f, individual){
 
 var simulateIndividual = function(individual, output1Threshold, output2Threshold){
   r.restart();
-  var net = generateNeuralNetwork(individual);
-  var sim = setInterval(function(){
-    if(r.crashed){
-      fitness[individual] = fitnessFunction(parseInt(r.distanceMeter.digits[0]+r.distanceMeter.digits[1]+r.distanceMeter.digits[2]+r.distanceMeter.digits[3]+r.distanceMeter.digits[4]),individual);
-      clearInterval(sim);
-    }
-    activateNeuralNetwork(net);
-    if(outputs[0] > output1Threshold){
-      outputBinary[0] = 1;
-    }
-    else{
-      outputBinary[0] = 0;
-    }
-    if(outputs[1] > output2Threshold){
-      outputBinary[1] = 1;
-    }
-    else{
-      outputBinary[1] = 0;
-    }
-  }, 50);
+  net = generateNeuralNetwork(individual);
+  sim = 1;
+  ind = individual;
+  outputThreshold[0] = output1Threshold;
+  outputThreshold[1] = output2Threshold;
 };
 
 var selection = function(){
@@ -308,10 +312,14 @@ var edgeMutation = function(individual){
   });
 };
 
+var deleteEdgeMutation = function(individual){
+  population[individual].edges.splice(Math.floor(population[individual].edges.length*Math.random()),1);
+}
+
 var biasMutation = function(individual, mutationRate, negateMutationRate){
   for(var i = 0; i < population[individual].nodes.length; i++){
     if(Math.random() < mutationRate){
-      population[individual].nodes[i] += z.nextGaussian();
+      population[individual].nodes[i] += z.nextGaussian()*0.1;
       population[individual].nodes[i] = population[individual].nodes[i] > 1 ? 1 : population[individual].nodes[i];
       population[individual].nodes[i] = population[individual].nodes[i] < -1 ? -1 : population[individual].nodes[i];
     }
@@ -335,7 +343,7 @@ var disableMutation = function(individual, disableRate, enableRate){
 var weightMutation = function(individual, mutationRate, negateMutationRate){
   for(var i = 0; i < population[individual].edges.length; i++){
     if(Math.random() < mutationRate){
-      population[individual].edges[i].weight += z.nextGaussian();
+      population[individual].edges[i].weight += z.nextGaussian()*0.1;
       population[individual].edges[i].weight = population[individual].edges[i].weight > 1 ? 1 : population[individual].edges[i].weight;
       population[individual].edges[i].weight = population[individual].edges[i].weight < -1 ? -1 : population[individual].edges[i].weight;
     }
@@ -377,7 +385,7 @@ var synapsis = function(individual1, individual2){
         }
       }
       else if(population[individual1].edges[i].innovation == population[individual2].edges[j].innovation){
-        if(Math.random() < 0.5){
+        if(Math.random() < config.crossoverRate){
           inheritance.push({
             innovation: population[individual1].edges[i].innovation,
             source: population[individual1].edges[i].source,
@@ -445,7 +453,7 @@ var synapsis = function(individual1, individual2){
         j++;
       }
       else if(population[individual1].edges[i].innovation == population[individual2].edges[j].innovation){
-        if(Math.random() < 0.5){
+        if(Math.random() < config.crossoverRate){
           inheritance.push({
             innovation: population[individual1].edges[i].innovation,
             source: population[individual1].edges[i].source,
@@ -495,7 +503,7 @@ var graphCrossover = function(individual1, individual2){
     else if(i >= population[individual1].nodes.length){
       genome.nodes.push(population[individual2].nodes[i]);
     }
-    else if(Math.random() < 0.5){
+    else if(Math.random() < config.crossoverRate){
       genome.nodes.push(population[individual1].nodes[i]);
     }
     else{
