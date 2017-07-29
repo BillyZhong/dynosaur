@@ -590,9 +590,48 @@ Runner.prototype = {
       if (!collision) {
         this.frame++;
         this.frame%=3;
-        if(this.bot){
-          if(this.frame==0){
-            var inputs = [0,0,0,0,0,0,0,0,0,0];
+        if(this.frame==0){
+          if(this.bot){
+            var binputs = [0,0,0,0,0,0,0,0,0,0];
+            binputs[0] = -this.tRex.yPos + 93;
+            binputs[1] = this.currentSpeed;
+            try {
+              binputs[2] = this.horizon.obstacles[0].xPos + 1;
+              binputs[3] = this.horizon.obstacles[0].xPos + this.horizon.obstacles[0].typeConfig.width * this.horizon.obstacles[0].size - 1;
+              binputs[4] = -(this.horizon.obstacles[0].yPos + 1) + 139;
+              binputs[5] = -(this.horizon.obstacles[0].yPos + this.horizon.obstacles[0].typeConfig.height - 1) + 139;
+            }
+            catch (e) {
+              binputs[2] = 999;
+              binputs[3] = 999;
+              binputs[4] = 999;
+              binputs[5] = 999;
+            }
+            try {
+              binputs[6] = this.horizon.obstacles[1].xPos + 1;
+              binputs[7] = this.horizon.obstacles[1].xPos + this.horizon.obstacles[1].typeConfig.width * this.horizon.obstacles[0].size - 1;
+              binputs[8] = -(this.horizon.obstacles[1].yPos + 1) + 139;
+              binputs[9] = -(this.horizon.obstacles[1].yPos + this.horizon.obstacles[1].typeConfig.height - 1) + 139;
+            }
+            catch (e) {
+              binputs[6] = 999;
+              binputs[7] = 999;
+              binputs[8] = 999;
+              binputs[9] = 999;
+            }
+            var outputBinary = net.activate(binputs);
+            if(outputBinary[1]){
+              this.down(1);
+              this.up(0);
+            }
+            else if(outputBinary[0]){
+              this.down(0);
+              this.up(1);
+            }
+            net.activate(inputs);
+	          net.propagate(0.05, outputs);
+          }
+          else{
             inputs[0] = -this.tRex.yPos + 93;
             inputs[1] = this.currentSpeed;
             try {
@@ -619,14 +658,6 @@ Runner.prototype = {
               inputs[8] = 999;
               inputs[9] = 999;
             }
-            var outputBinary = neat.p.population[this.neatId].activateNeuralNetwork(inputs);
-            if(outputBinary[0] && outputBinary[1]){
-              this.down(1);
-            }
-            else{
-              this.up(outputBinary[0]);
-              this.down(outputBinary[1]);
-            }
           }
         }
         this.distanceRan += this.currentSpeed * deltaTime / this.msPerFrame;
@@ -651,8 +682,12 @@ Runner.prototype = {
       this.raq();
     }
     else{
-      neat.p.population[this.neatId].fitnessFunction(isNaN(parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4])) ? 0 : parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4]));
-      neat.sim--;
+      this.tRex.xPos = 25;
+      this.upPressed = 0;
+      this.downPressed = 0;
+      if(this.bot){
+        this.restart();
+      }
     }
   },
 
@@ -756,7 +791,9 @@ Runner.prototype = {
    * @param {Event} e
    */
   onKeyDown: function(e) {
-    console.log(e);
+    if(e.srcElement == document.body){
+      outputs[e.keyCode/2-19] = 1;
+    }
     // Prevent native page scrolling whilst tapping on mobile.
     if (IS_MOBILE) {
       e.preventDefault();
@@ -801,7 +838,9 @@ Runner.prototype = {
    * @param {Event} e
    */
   onKeyUp: function(e) {
-    console.log(e);
+    if(e.srcElement == document.body){
+      outputs[e.keyCode/2-19] = 0;
+    }
     var keyCode = String(e.keyCode);
     var isjumpKey = Runner.keycodes.JUMP[keyCode] ||
        e.type == Runner.events.TOUCHEND ||

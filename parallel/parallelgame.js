@@ -652,6 +652,9 @@ Runner.prototype = {
       this.raq();
     }
     else{
+      this.tRex.xPos = 25;
+      this.upPressed = 0;
+      this.downPressed = 0;
       neat.p.population[this.neatId].fitnessFunction(isNaN(parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4])) ? 0 : parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4]));
       neat.sim--;
     }
