@@ -620,16 +620,22 @@ Runner.prototype = {
               binputs[9] = 999;
             }
             var outputBinary = net.activate(binputs);
-            if(outputBinary[1]){
+            if(outputBinary[1] > 0.5){
               this.down(1);
               this.up(0);
             }
-            else if(outputBinary[0]){
+            else if(outputBinary[0] > 0.5){
               this.down(0);
               this.up(1);
             }
-            net.activate(inputs);
-	          net.propagate(0.05, outputs);
+            else{
+              this.down(0);
+              this.up(0);
+            }
+            if(outputs[0] || outputs[1]){
+              console.log(net.activate(inputs));
+  	          net.propagate(0.05, outputs);
+            }
           }
           else{
             inputs[0] = -this.tRex.yPos + 93;

@@ -628,6 +628,10 @@ Runner.prototype = {
               this.down(0);
               this.up(1);
             }
+            else{
+              this.down(0);
+              this.up(0);
+            }
           }
         }
         this.distanceRan += this.currentSpeed * deltaTime / this.msPerFrame;
