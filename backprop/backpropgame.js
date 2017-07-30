@@ -619,12 +619,13 @@ Runner.prototype = {
               binputs[8] = 999;
               binputs[9] = 999;
             }
-            var outputBinary = net.activate(binputs);
-            if(outputBinary[1] > 0.5){
+            var botOutputs = net.activate(binputs);
+            console.log(botOutputs);
+            if(botOutputs[1] > 0.5){
               this.down(1);
               this.up(0);
             }
-            else if(outputBinary[0] > 0.5){
+            else if(botOutputs[0] > 0.5){
               this.down(0);
               this.up(1);
             }
@@ -632,9 +633,9 @@ Runner.prototype = {
               this.down(0);
               this.up(0);
             }
-            if(outputs[0] || outputs[1]){
-              console.log(net.activate(inputs));
-  	          net.propagate(0.05, outputs);
+            if(learn){
+              net.activate(inputs);
+    	        net.propagate(0.05, outputs);
             }
           }
           else{
@@ -797,6 +798,10 @@ Runner.prototype = {
    * @param {Event} e
    */
   onKeyDown: function(e) {
+    if(e.keyCode == 13){
+      learn = !learn;
+      return;
+    }
     if(e.srcElement == document.body){
       outputs[e.keyCode/2-19] = 1;
     }
@@ -844,6 +849,9 @@ Runner.prototype = {
    * @param {Event} e
    */
   onKeyUp: function(e) {
+    if(e.keyCode == 13){
+      return;
+    }
     if(e.srcElement == document.body){
       outputs[e.keyCode/2-19] = 0;
     }
