@@ -21,8 +21,10 @@ function NEAT(n){
   }
 
   this.p = new Population(n);
+};
 
-  this.simulateGeneration = function(){
+NEAT.prototype = {
+  simulateGeneration : function(){
     this.sim = this.p.population.length;
     for(var i = 0; i < this.p.population.length; i++){
       this.p.population[i].generateNeuralNetwork();
@@ -31,7 +33,7 @@ function NEAT(n){
       this.r[i].restart();
     }
   }
-}
+};
 
 function Population(popsize){
   this.config = {
@@ -55,8 +57,10 @@ function Population(popsize){
   for(var i = 0; i < popsize; i++){
     this.population.push(new Individual());
   }
+};
 
-  this.selection = function(){
+Population.prototype = {
+  selection : function(){
     var tempMaxFit = -1;
     var tempPop = [];
     var tempFitness = [];
@@ -78,9 +82,9 @@ function Population(popsize){
     }
     this.population = tempPop;
     this.maxFitness.push(tempMaxFit);
-  };
+  },
 
-  this.nodeMutation = function(individual){
+  nodeMutation : function(individual){
     if(Math.random() < this.config.addNodeMutationRate){
       var enabledEdges = [];
       for(var i = 0; i < this.population[individual].genome.edges.length; i++){
@@ -146,9 +150,9 @@ function Population(popsize){
         });
       }
     }
-  };
+  },
 
-  this.dfs = function(graph, individual, dest, src){
+  dfs : function(graph, individual, dest, src){
     var visited = [];
     for(var i = 0; i < 10+this.population[individual].genome.nodes.length; i++){
       visited.push(0);
@@ -167,9 +171,9 @@ function Population(popsize){
       }
     }
     return false;
-  }
+  },
 
-  this.edgeMutation = function(individual){
+  edgeMutation : function(individual){
     if(Math.random() < this.config.addEdgeMutationRate){
       var innov;
       var adjhash = [];
@@ -229,15 +233,15 @@ function Population(popsize){
         disabled: 0
       });
     }
-  };
+  },
 
-  this.deleteEdgeMutation = function(individual){
+  deleteEdgeMutation : function(individual){
     if(Math.random() < this.config.deleteEdgeMutationRate){
       this.population[individual].genome.edges.splice(Math.floor(this.population[individual].genome.edges.length*Math.random()),1);
     }
-  }
+  },
 
-  this.biasMutation = function(individual){
+  biasMutation : function(individual){
     for(var i = 0; i < this.population[individual].genome.nodes.length; i++){
       if(Math.random() < this.config.biasMutationRate){
         this.population[individual].genome.nodes[i] += z.nextGaussian()*0.1;
@@ -248,9 +252,9 @@ function Population(popsize){
         this.population[individual].genome.nodes[i] = -this.population[individual].genome.nodes[i];
       }
     }
-  };
+  },
 
-  this.disableMutation = function(individual){
+  disableMutation : function(individual){
     for(var i = 0; i < this.population[individual].genome.edges.length; i++){
       if(Math.random() < this.disableGeneMutationRate){
         this.population[individual].genome.edges[i].disabled = 1;
@@ -259,9 +263,9 @@ function Population(popsize){
         this.population[individual].genome.edges[i].disabled = 0;
       }
     }
-  };
+  },
 
-  this.weightMutation = function(individual){
+  weightMutation : function(individual){
     for(var i = 0; i < this.population[individual].genome.edges.length; i++){
       if(Math.random() < this.edgeMutationRate){
         this.population[individual].genome.edges[i].weight += z.nextGaussian()*0.1;
@@ -272,9 +276,9 @@ function Population(popsize){
         this.population[individual].genome.edges[i].weight = -this.population[individual].genome.edges[i].weight;
       }
     }
-  };
+  },
 
-  this.synapsis = function(individual1, individual2){
+  synapsis : function(individual1, individual2){
     var i = 0;
     var j = 0;
     var inheritance = [];
@@ -400,9 +404,9 @@ function Population(popsize){
       }
     }
     return inheritance;
-  };
+  },
 
-  this.graphCrossover = function(individual1, individual2){
+  graphCrossover : function(individual1, individual2){
     var genome = {species:0, nodes:[],edges:[]};
     if(this.population[individual1].fitness < this.population[individual2].fitness){
       var tg = this.population[individual1].genome;
@@ -432,9 +436,9 @@ function Population(popsize){
       }
     }
     return genome;
-  };
+  },
 
-  this.distanceFunction = function(individual1, individual2, c1, c2, c3){
+  distanceFunction : function(individual1, individual2, c1, c2, c3){
     var N = 1+Math.max(this.population[individual1].genome.edges.length, this.population[individual2].genome.edges.length);
     var E = 0;
     var D = 0;
@@ -479,9 +483,9 @@ function Population(popsize){
       W /= m;
     }
     return c1*E/N + c2*D/N + c3*W;
-  };
+  },
 
-  this.evolvePop = function(){
+  evolvePop : function(){
     this.selection();
     for(var i = 0; i < 2*this.population.length/3; i+=2){
       this.population[2*this.population.length/3 + i/2].genome = this.graphCrossover(i,i+1);
@@ -495,7 +499,7 @@ function Population(popsize){
       this.weightMutation(i);
     }
     this.generation++;
-  };
+  }
 }
 
 function Individual(){
@@ -503,8 +507,10 @@ function Individual(){
   this.fitness = 0;
   this.outputThreshold = [0.5,0.5];
   this.neurons;
+};
 
-  this.generateNeuralNetwork = function(){
+Individual.prototype = {
+  generateNeuralNetwork : function(){
     var neurons = [];
     for(var i = 0; i < 10; i++){
       neurons.push(new synaptic.Neuron());
@@ -523,13 +529,13 @@ function Individual(){
       }
     }
     this.neurons = neurons;
-  };
+  },
 
-  this.fitnessFunction = function(s){
+  fitnessFunction : function(s){
     this.fitness = Math.ceil(Math.pow(s,2)/Math.sqrt(1+this.genome.edges.length));
-  };
+  },
 
-  this.activateNeuralNetwork = function(inputs){
+  activateNeuralNetwork : function(inputs){
     for(var i = 0; i < 10; i++){
       this.neurons[i].activate(inputs[i]);
     }
@@ -537,9 +543,9 @@ function Individual(){
       this.neurons[i].activate();
     }
     return [this.neurons[10].activate() < this.outputThreshold[0] ? 0 : 1, this.neurons[11].activate() < this.outputThreshold[1] ? 0 : 1];
-  };
+  },
 
-  this.activateNeuralNetworkDFS = function(inputs){
+  activateNeuralNetworkDFS : function(inputs){
     var activated = [];
     for(var i = 0; i < 10; i++){
       this.neurons[i].activate(inputs[i]);
@@ -577,5 +583,5 @@ function Individual(){
         }
       }
     }
-  };
-}
+  }
+};
