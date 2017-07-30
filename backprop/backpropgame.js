@@ -635,7 +635,7 @@ Runner.prototype = {
             }
             if(learn){
               net.activate(inputs);
-    	        net.propagate(0.05, outputs);
+    	        net.propagate(0.001, outputs);
             }
           }
           else{

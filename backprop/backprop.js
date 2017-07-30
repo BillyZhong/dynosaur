@@ -6,4 +6,4 @@ var outputs = [0,0];
 var learn = 1;
 
 
-var net = new synaptic.Architect.Liquid(10,20,2,30,10);
+var net = new synaptic.Architect.LSTM(10,6,2);
