@@ -10,9 +10,10 @@ Sample Species
 */
 
 function NEAT(n){
+  this.n = n;
   this.r = [];
   this.sim = 0;
-  for(var i = 0; i < n; i++){
+  for(var i = 0; i < this.n; i++){
     var el = document.createElement('div');
     el.innerHTML = '<div style="width:600px;display:inline-block" id="main-frame-error" class="interstitial-wrapper"><div id="main-content"></div></div>';
     el = el.firstChild;
@@ -25,13 +26,25 @@ function NEAT(n){
 
 NEAT.prototype = {
   simulateGeneration : function(){
-    this.sim = this.p.population.length;
-    for(var i = 0; i < this.p.population.length; i++){
+    this.sim = this.n;
+    for(var i = 0; i < this.n; i++){
       this.p.population[i].generateNeuralNetwork();
     }
-    for(var i = 0; i < this.r.length; i++){
+    for(var i = 0; i < this.n; i++){
       this.r[i].restart();
     }
+  },
+
+  exportJSON : function(){
+    var g = [];
+    for(var i = 0; i < this.n; i++){
+      g.push(this.p.population[i].genome);
+    }
+    var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({population: g, innovations: this.p.innovations}));
+    var ae = document.createElement('a');
+    ae.href = 'data:' + data;
+    ae.download = 'population.json';
+    ae.click();
   }
 };
 
