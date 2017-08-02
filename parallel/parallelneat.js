@@ -9,22 +9,25 @@ Sample Species
   members:[]
 */
 
-function NEAT(n){
-  this.n = n;
-  this.r = [];
-  this.sim = 0;
-  for(var i = 0; i < this.n; i++){
-    var el = document.createElement('div');
-    el.innerHTML = '<div style="width:600px;display:inline-block" id="main-frame-error" class="interstitial-wrapper"><div id="main-content"></div></div>';
-    el = el.firstChild;
-    document.body.append(el);
-    this.r.push(new Runner(document.querySelectorAll('.interstitial-wrapper')[i],i));
-  }
-
-  this.p = new Population(n);
+function NEAT(){
 };
 
 NEAT.prototype = {
+  init : function(n){
+    this.n = n;
+    this.r = [];
+    this.sim = 0;
+    for(var i = 0; i < n; i++){
+      var el = document.createElement('div');
+      el.innerHTML = '<div style="width:600px;display:inline-block" id="main-frame-error" class="interstitial-wrapper"><div id="main-content"></div></div>';
+      el = el.firstChild;
+      document.body.append(el);
+      this.r.push(new Runner(document.querySelectorAll('.interstitial-wrapper')[i],i));
+    }
+
+    this.p = new Population(n);
+  },
+
   simulateGeneration : function(){
     this.sim = this.n;
     for(var i = 0; i < this.n; i++){
@@ -45,6 +48,29 @@ NEAT.prototype = {
     ae.href = 'data:' + data;
     ae.download = 'population.json';
     ae.click();
+  },
+
+  importJSON : function(files){
+    if(!files){
+      var upload = document.createElement('input');
+      upload.innerHTML = '<input type="file" accept="application/json" onchange="neat.importJSON(this.files)"/>';
+      upload = upload.firstChild;
+      upload.click();
+    }
+    else{
+      var thisNeat = this;
+      var fr = new FileReader();
+      fr.onload = function(e) {
+        var res = JSON.parse(e.target.result);
+        thisNeat.init(res.population.length);
+        for(var i = 0; i < res.population.length; i++){
+          thisNeat.p.population[i].genome = res.population[i];
+        }
+        thisNeat.p.innovations = res.innovations;
+      }
+
+      fr.readAsText(files.item(0));
+    }
   }
 };
 
@@ -598,3 +624,5 @@ Individual.prototype = {
     }
   }
 };
+
+var neat = new NEAT();
