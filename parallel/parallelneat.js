@@ -100,7 +100,7 @@ function Population(popsize){
     edgeMutationRate : 0.25,
     negateEdgeMutationRate : 0.10,
     crossoverRate : 0.5,
-    outputThreshold = [0.5,0.5];
+    outputThreshold : [0.5,0.5]
   };
   this.population = [];
   this.generation = 1;
