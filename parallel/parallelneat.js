@@ -42,7 +42,7 @@ NEAT.prototype = {
   startEvolution : function(){
     this.sim = 0;
     var thisNeat = this;
-    this.t = setInterval(function(){if(thisNeat.sim==0){thisNeat.simulateGeneration()}},1000);
+    this.t = setInterval(function(){if(thisNeat.sim==0){thisNeat.p.evolvePop();thisNeat.simulateGeneration()}},1000);
   },
 
   stopEvolution : function(){
