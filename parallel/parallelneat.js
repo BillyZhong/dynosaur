@@ -26,6 +26,7 @@ NEAT.prototype = {
     }
 
     this.p = new Population(n);
+    this.t;
   },
 
   simulateGeneration : function(){
@@ -36,6 +37,17 @@ NEAT.prototype = {
     for(var i = 0; i < this.n; i++){
       this.r[i].restart();
     }
+  },
+
+  startEvolution : function(){
+    this.sim = 0;
+    var thisNeat = this;
+    this.t = setInterval(function(){if(thisNeat.sim==0){console.log("a");thisNeat.simulateGeneration()}},1000);
+  },
+
+  stopEvolution : function(){
+    clearInterval(this.t);
+    delete this.t;
   },
 
   exportJSON : function(){
@@ -128,115 +140,83 @@ Population.prototype = {
   nodeMutation : function(individual){
     if(Math.random() < this.config.addNodeMutationRate){
       var enabledEdges = [];
-      for(var i = 0; i < this.population[individual].genome.edges.length; i++){
-        if(!this.population[individual].genome.edges[i].disabled){
-          enabledEdges.push(i);
+      for(var k in this.population[individual].genome.edges){
+        if(!this.population[individual].genome.edges[k].disabled){
+          enabledEdges.push(k);
         }
       }
       if(enabledEdges.length > 0){
         var p = enabledEdges[Math.floor(Math.random()*enabledEdges.length)];
+
         this.population[individual].genome.edges[p].disabled = 1;
-        this.population[individual].genome.nodes.push(Math.random()*2-1);
+        var lnode = 10;
+        for(var k in this.population[individual].genome.nodes){
+          if(parseInt(k) != lnode+1){
+            break;
+          }
+          else{
+            lnode = parseInt(k);
+          }
+        }
+        this.population[individual].genome.nodes[(lnode+1).toString()] = Math.random()*2-1;
         var innovp = -1;
         for(var i = 0; i < this.innovations.length; i++){
-          if(this.innovations[i].source == this.population[individual].genome.edges[p].source && this.innovations[i].dest == 10+this.population[individual].genome.nodes.length){
+          if(this.innovations[i].source == this.population[individual].genome.edges[p].source && this.innovations[i].dest == lnode+1){
             innovp = i+1;
           }
         }
         if(innovp == -1){
-          this.innovations.push({source:this.population[individual].genome.edges[p].source,dest:10+this.population[individual].genome.nodes.length});
+          this.innovations.push({source:this.population[individual].genome.edges[p].source,dest:lnode+1});
           innovp = this.innovations.length;
         }
-        var innovpos = this.population[individual].genome.edges.length;
-        for(var i = this.population[individual].genome.edges.length-1; i >= 0; i--){
-          if(this.population[individual].genome.edges[i].innovation > innovp){
-            innovpos = i;
-          }
-          else{
-            break;
-          }
-        }
-        this.population[individual].genome.edges.splice(innovpos, 0, {
-          innovation: innovp,
+        this.population[individual].genome.edges[innovp.toString()] = {
           source: this.population[individual].genome.edges[p].source,
-          dest: 10+this.population[individual].genome.nodes.length,
+          dest: lnode+1,
           weight: Math.random()*2-1,
           disabled: 0
-        });
+        };
         innovp = -1;
         for(var i = 0; i < this.innovations.length; i++){
-          if(this.innovations[i].source == 10+this.population[individual].genome.nodes.length && this.innovations[i].dest == this.population[individual].genome.edges[p].dest){
+          if(this.innovations[i].source == lnode+1 && this.innovations[i].dest == this.population[individual].genome.edges[p].dest){
             innovp = i+1;
           }
         }
         if(innovp == -1){
-          this.innovations.push({source:10+this.population[individual].genome.nodes.length,dest:this.population[individual].genome.edges[p].dest});
+          this.innovations.push({source:lnode+1,dest:this.population[individual].genome.edges[p].dest});
           innovp = this.innovations.length;
         }
-        innovpos = this.population[individual].genome.edges.length;
-        for(var i = this.population[individual].genome.edges.length-1; i >= 0; i--){
-          if(this.population[individual].genome.edges[i].innovation > innovp){
-            innovpos = i;
-          }
-          else{
-            break;
-          }
-        }
-        this.population[individual].genome.edges.splice(innovpos, 0, {
-          innovation: innovp,
-          source: 10+this.population[individual].genome.nodes.length,
+        this.population[individual].genome.edges[innovp.toString()] = {
+          source: lnode+1,
           dest: this.population[individual].genome.edges[p].dest,
           weight: Math.random()*2-1,
           disabled: 0
-        });
+        };
       }
     }
-  },
-
-  dfs : function(graph, individual, dest, src){
-    var visited = [];
-    for(var i = 0; i < 10+this.population[individual].genome.nodes.length; i++){
-      visited.push(0);
-    }
-    var nodestack = [dest];
-    while(nodestack.length != 0){
-      var node = nodestack.pop();
-      if(!visited[src] && !visited[node]){
-        visited[node] = 1;
-        if(node == src){
-          return true;
-        }
-        for(var i = 0; i < graph[node].length; i++){
-          nodestack.push(graph[node][i]);
-        }
-      }
-    }
-    return false;
   },
 
   edgeMutation : function(individual){
     if(Math.random() < this.config.addEdgeMutationRate){
-      var innov;
       var adjhash = [];
-      for(var i = 0; i < this.population[individual].genome.nodes.length + 10; i++){
+      for(var i = 0; i < Object.keys(this.population[individual].genome.nodes).length + 10; i++){
         adjhash.push([]);
-        for(var j = 0; j < this.population[individual].genome.nodes.length + 10; j++){
+        for(var j = 0; j < Object.keys(this.population[individual].genome.nodes).length + 10; j++){
           adjhash[i].push(0);
         }
       }
-      for(var i = 0; i < this.population[individual].genome.edges.length; i++){
-        adjhash[this.population[individual].genome.edges[i].source-1][this.population[individual].genome.edges[i].dest-1] = 1;
+      for(var k in this.population[individual].genome.edges){
+        adjhash[this.population[individual].genome.edges[k].source-1][this.population[individual].genome.edges[k].dest-1] = 1;
       }
       var nonedges = [];
       for(var i = 0; i < 10; i++){
-        for(var j = 10; j < this.population[individual].genome.nodes.length + 10; j++){
+        for(var j = 10; j < Object.keys(this.population[individual].genome.nodes).length + 10; j++){
           if(!adjhash[i][j]){
             nonedges.push({source:i+1,dest:j+1});
           }
         }
       }
-      for(var i = 12; i < this.population[individual].genome.nodes.length + 10; i++){
-        for(var j = 10; j < this.population[individual].genome.nodes.length + 10; j++){
+      for(var i = 12; i < Object.keys(this.population[individual].genome.nodes).length + 10; i++){
+        for(var j = 10; j < Object.keys(this.population[individual].genome.nodes).length + 10; j++){
           if(!adjhash[i][j]){
             nonedges.push({source:i+1,dest:j+1});
           }
@@ -246,7 +226,7 @@ Population.prototype = {
         return;
       }
       var rne = Math.floor(Math.random()*nonedges.length);
-      innov = nonedges[rne];
+      var innov = nonedges[rne];
       var innovp = -1;
       for(var i = 0; i < this.innovations.length; i++){
         if(this.innovations[i].source == innov.source && this.innovations[i].dest == innov.dest){
@@ -257,205 +237,68 @@ Population.prototype = {
         this.innovations.push(innov);
         innovp = this.innovations.length;
       }
-      var innovpos = this.population[individual].genome.edges.length;
-      for(var i = this.population[individual].genome.edges.length-1; i >= 0; i--){
-        if(this.population[individual].genome.edges[i].innovation > innovp){
-          innovpos = i;
-        }
-        else{
-          break;
-        }
-      }
-      this.population[individual].genome.edges.splice(innovpos, 0, {
-        innovation: innovp,
+      this.population[individual].genome.edges[innovp.toString()] = {
         source: innov.source,
         dest: innov.dest,
         weight: Math.random()*2-1,
         disabled: 0
-      });
+      };
     }
   },
 
   deleteEdgeMutation : function(individual){
     if(Math.random() < this.config.deleteEdgeMutationRate){
-      this.population[individual].genome.edges.splice(Math.floor(this.population[individual].genome.edges.length*Math.random()),1);
+      delete this.population[individual].genome.edges[Object.keys(this.population[individual].genome.edges)[Math.floor(Math.random()*Object.keys(this.population[individual].genome.edges).length)]];
     }
   },
 
   biasMutation : function(individual){
-    for(var i = 0; i < this.population[individual].genome.nodes.length; i++){
+    for(var k in this.population[individual].genome.nodes){
       if(Math.random() < this.config.biasMutationRate){
-        this.population[individual].genome.nodes[i] += z.nextGaussian()*0.1;
-        this.population[individual].genome.nodes[i] = this.population[individual].genome.nodes[i] > 1 ? 1 : this.population[individual].genome.nodes[i];
-        this.population[individual].genome.nodes[i] = this.population[individual].genome.nodes[i] < -1 ? -1 : this.population[individual].genome.nodes[i];
+        this.population[individual].genome.nodes[k] += z.nextGaussian()*0.1;
+        this.population[individual].genome.nodes[k] = this.population[individual].genome.nodes[k] > 1 ? 1 : this.population[individual].genome.nodes[k];
+        this.population[individual].genome.nodes[k] = this.population[individual].genome.nodes[k] < -1 ? -1 : this.population[individual].genome.nodes[k];
       }
       if(Math.random() < this.config.negateBiasMutationRate){
-        this.population[individual].genome.nodes[i] = -this.population[individual].genome.nodes[i];
+        this.population[individual].genome.nodes[k] = -this.population[individual].genome.nodes[k];
       }
     }
   },
 
   disableMutation : function(individual){
-    for(var i = 0; i < this.population[individual].genome.edges.length; i++){
+    for(var k in this.population[individual].genome.edges){
       if(Math.random() < this.disableGeneMutationRate){
-        this.population[individual].genome.edges[i].disabled = 1;
+        this.population[individual].genome.edges[k].disabled = 1;
       }
       else if(Math.random() < this.enableGeneMutationRate){
-        this.population[individual].genome.edges[i].disabled = 0;
+        this.population[individual].genome.edges[k].disabled = 0;
       }
     }
   },
 
   weightMutation : function(individual){
-    for(var i = 0; i < this.population[individual].genome.edges.length; i++){
+    for(var k in this.population[individual].genome.edges){
       if(Math.random() < this.edgeMutationRate){
-        this.population[individual].genome.edges[i].weight += z.nextGaussian()*0.1;
-        this.population[individual].genome.edges[i].weight = this.population[individual].genome.edges[i].weight > 1 ? 1 : this.population[individual].genome.edges[i].weight;
-        this.population[individual].genome.edges[i].weight = this.population[individual].genome.edges[i].weight < -1 ? -1 : this.population[individual].genome.edges[i].weight;
+        this.population[individual].genome.edges[k].weight += z.nextGaussian()*0.1;
+        this.population[individual].genome.edges[k].weight = this.population[individual].genome.edges[k].weight > 1 ? 1 : this.population[individual].genome.edges[k].weight;
+        this.population[individual].genome.edges[k].weight = this.population[individual].genome.edges[k].weight < -1 ? -1 : this.population[individual].genome.edges[k].weight;
       }
       if(Math.random() < this.negateEdgeMutationRate){
-        this.population[individual].genome.edges[i].weight = -this.population[individual].genome.edges[i].weight;
+        this.population[individual].genome.edges[k].weight = -this.population[individual].genome.edges[k].weight;
       }
     }
   },
 
   synapsis : function(individual1, individual2){
-    var i = 0;
-    var j = 0;
-    var inheritance = [];
-    if(this.population[individual1].fitness > this.population[individual2].fitness){
-      while(i < this.population[individual1].genome.edges.length){
-        if(j >= this.population[individual2].genome.edges.length){
-          inheritance.push({
-            innovation: this.population[individual1].genome.edges[i].innovation,
-            source: this.population[individual1].genome.edges[i].source,
-            dest: this.population[individual1].genome.edges[i].dest,
-            weight: this.population[individual1].genome.edges[i].weight,
-            disabled: this.population[individual1].genome.edges[i].disabled
-          });
-          i++;
-        }
-        else if(this.population[individual1].genome.edges[i].innovation != this.population[individual2].genome.edges[j].innovation){
-          while(j < this.population[individual2].genome.edges.length && this.population[individual1].genome.edges[i].innovation > this.population[individual2].genome.edges[j].innovation){
-            j++;
-          }
-          if(j < this.population[individual2].genome.edges.length && this.population[individual1].genome.edges[i].innovation != this.population[individual2].genome.edges[j].innovation){
-            inheritance.push({
-              innovation: this.population[individual1].genome.edges[i].innovation,
-              source: this.population[individual1].genome.edges[i].source,
-              dest: this.population[individual1].genome.edges[i].dest,
-              weight: this.population[individual1].genome.edges[i].weight,
-              disabled: this.population[individual1].genome.edges[i].disabled
-            });
-            i++;
-          }
-        }
-        else if(this.population[individual1].genome.edges[i].innovation == this.population[individual2].genome.edges[j].innovation){
-          if(Math.random() < this.config.crossoverRate){
-            inheritance.push({
-              innovation: this.population[individual1].genome.edges[i].innovation,
-              source: this.population[individual1].genome.edges[i].source,
-              dest: this.population[individual1].genome.edges[i].dest,
-              weight: this.population[individual1].genome.edges[i].weight,
-              disabled: this.population[individual1].genome.edges[i].disabled
-            });
-            i++;
-            j++;
-          }
-          else{
-            inheritance.push({
-              innovation: this.population[individual2].genome.edges[j].innovation,
-              source: this.population[individual2].genome.edges[j].source,
-              dest: this.population[individual2].genome.edges[j].dest,
-              weight: this.population[individual2].genome.edges[j].weight,
-              disabled: this.population[individual2].genome.edges[j].disabled
-            });
-            i++;
-            j++;
-          }
-        }
-      }
-    }
-    else if(this.population[individual1].fitness == this.population[individual2].fitness){
-      while(i < this.population[individual1].genome.edges.length || j < this.population[individual2].genome.edges.length){
-        if(j >= this.population[individual2].genome.edges.length){
-          inheritance.push({
-            innovation: this.population[individual1].genome.edges[i].innovation,
-            source: this.population[individual1].genome.edges[i].source,
-            dest: this.population[individual1].genome.edges[i].dest,
-            weight: this.population[individual1].genome.edges[i].weight,
-            disabled: this.population[individual1].genome.edges[i].disabled
-          });
-          i++;
-        }
-        else if(i >= this.population[individual1].genome.edges.length){
-          inheritance.push({
-            innovation: this.population[individual2].genome.edges[j].innovation,
-            source: this.population[individual2].genome.edges[j].source,
-            dest: this.population[individual2].genome.edges[j].dest,
-            weight: this.population[individual2].genome.edges[j].weight,
-            disabled: this.population[individual2].genome.edges[j].disabled
-          });
-          j++;
-        }
-        else if(this.population[individual1].genome.edges[i].innovation < this.population[individual2].genome.edges[j].innovation){
-          inheritance.push({
-            innovation: this.population[individual1].genome.edges[i].innovation,
-            source: this.population[individual1].genome.edges[i].source,
-            dest: this.population[individual1].genome.edges[i].dest,
-            weight: this.population[individual1].genome.edges[i].weight,
-            disabled: this.population[individual1].genome.edges[i].disabled
-          });
-          i++;
-        }
-        else if(this.population[individual1].genome.edges[i].innovation > this.population[individual2].genome.edges[j].innovation){
-          inheritance.push({
-            innovation: this.population[individual2].genome.edges[j].innovation,
-            source: this.population[individual2].genome.edges[j].source,
-            dest: this.population[individual2].genome.edges[j].dest,
-            weight: this.population[individual2].genome.edges[j].weight,
-            disabled: this.population[individual2].genome.edges[j].disabled
-          });
-          j++;
-        }
-        else if(this.population[individual1].genome.edges[i].innovation == this.population[individual2].genome.edges[j].innovation){
-          if(Math.random() < this.config.crossoverRate){
-            inheritance.push({
-              innovation: this.population[individual1].genome.edges[i].innovation,
-              source: this.population[individual1].genome.edges[i].source,
-              dest: this.population[individual1].genome.edges[i].dest,
-              weight: this.population[individual1].genome.edges[i].weight,
-              disabled: this.population[individual1].genome.edges[i].disabled
-            });
-            i++;
-            j++;
-          }
-          else{
-            inheritance.push({
-              innovation: this.population[individual2].genome.edges[j].innovation,
-              source: this.population[individual2].genome.edges[j].source,
-              dest: this.population[individual2].genome.edges[j].dest,
-              weight: this.population[individual2].genome.edges[j].weight,
-              disabled: this.population[individual2].genome.edges[j].disabled
-            });
-            i++;
-            j++;
-          }
-        }
-      }
-    }
-    return inheritance;
+
   },
 
   graphCrossover : function(individual1, individual2){
     var genome = {species:0, nodes:[],edges:[]};
     if(this.population[individual1].fitness < this.population[individual2].fitness){
-      var tg = this.population[individual1].genome;
-      var tf = this.population[individual1].fitness;
-      this.population[individual1].genome = this.population[individual2].genome;
-      this.population[individual1].fitness = this.population[individual2].fitness;
-      this.population[individual2].genome = tg;
-      this.population[individual2].fitness = tf;
+      var t = this.population[individual1];
+      this.population[individual1] = this.population[individual2];
+      this.population[individual2] = t;
     }
     genome.edges = this.synapsis(individual1, individual2);
     var maxnode = 12;
@@ -463,10 +306,10 @@ Population.prototype = {
       maxnode = Math.max(maxnode, genome.edges[i].source, genome.edges[i].dest);
     }
     for(var i = 0; i < maxnode-10; i++){
-      if(i >= this.population[individual2].genome.nodes.length){
+      if(i >= Object.keys(this.population[individual2].genome.nodes).length){
         genome.nodes.push(this.population[individual1].genome.nodes[i]);
       }
-      else if(i >= this.population[individual1].genome.nodes.length){
+      else if(i >= Object.keys(this.population[individual1].genome.nodes).length){
         genome.nodes.push(this.population[individual2].genome.nodes[i]);
       }
       else if(Math.random() < this.config.crossoverRate){
@@ -480,7 +323,7 @@ Population.prototype = {
   },
 
   distanceFunction : function(individual1, individual2, c1, c2, c3){
-    var N = 1+Math.max(this.population[individual1].genome.edges.length, this.population[individual2].genome.edges.length);
+    var N = 1+Math.max(Object.keys(this.population[individual1].genome.edges).length, Object.keys(this.population[individual2].genome.edges).length);
     var E = 0;
     var D = 0;
     var W = 0;
@@ -490,11 +333,11 @@ Population.prototype = {
       genehash[0].push(2);
       genehash[1].push(2);
     }
-    for(var i = 0; i < this.population[individual1].genome.edges.length; i++){
-      genehash[0][this.population[individual1].genome.edges[i].innovation-1] = this.population[individual1].genome.edges[i].weight;
+    for(var k in this.population[individual1].genome.edges){
+      genehash[0][this.population[individual1].genome.edges[k].innovation-1] = this.population[individual1].genome.edges[k].weight;
     }
-    for(var i = 0; i < this.population[individual2].genome.edges.length; i++){
-      genehash[1][this.population[individual2].genome.edges[i].innovation-1] = this.population[individual2].genome.edges[i].weight;
+    for(var k in this.population[individual2].genome.edges){
+      genehash[1][this.population[individual2].genome.edges[k].innovation-1] = this.population[individual2].genome.edges[k].weight;
     }
     for(var i = 0; i < this.innovations.length; i++){
       if(genehash[0][i] != 2 || genehash[1][i] != 2){
@@ -503,7 +346,7 @@ Population.prototype = {
           m++;
         }
         else if(genehash[0][i] != 2){
-          if(this.population[individual2].genome.edges.length == 0 || i+1 > this.population[individual2].genome.edges[this.population[individual2].genome.edges.length-1].innovation){
+          if(Object.keys(this.population[individual2].genome.edges).length == 0 || i+1 > this.population[individual2].genome.edges[Object.keys(this.population[individual2].genome.edges).length-1].innovation){
             E++;
           }
           else{
@@ -511,7 +354,7 @@ Population.prototype = {
           }
         }
         else if(genehash[1][i] != 2){
-          if(this.population[individual1].genome.edges.length == 0 || i+1 > this.population[individual1].genome.edges[this.population[individual1].genome.edges.length-1].innovation){
+          if(Object.keys(this.population[individual1].genome.edges).length == 0 || i+1 > this.population[individual1].genome.edges[Object.keys(this.population[individual1].genome.edges).length-1].innovation){
             E++;
           }
           else{
@@ -544,7 +387,7 @@ Population.prototype = {
 }
 
 function Individual(){
-  this.genome = {species:0, nodes:[Math.random()*2-1, Math.random()*2-1],edges:[]};
+  this.genome = {species:0, nodes:{11:Math.random()*2-1, 12:Math.random()*2-1},edges:{}};
   this.fitness = 0;
   this.outputThreshold = [0.5,0.5];
   this.neurons;
@@ -557,23 +400,23 @@ Individual.prototype = {
       neurons.push(new synaptic.Neuron());
       neurons[i].ID = i+1;
     }
-    for(var i = 10; i < 10+this.genome.nodes.length; i++){
+    for(var k in this.genome.nodes){
       neurons.push(new synaptic.Neuron());
-      neurons[i].ID = i+1;
-      neurons[i].bias = this.genome.nodes[i-10];
+      neurons[neurons.length-1].ID = parseInt(k);
+      neurons[neurons.length-1].bias = this.genome.nodes[k];
     }
-    for(var i = 0; i < this.genome.edges.length; i++){
-      if(!this.genome.edges[i].disabled){
-        var conn = neurons[this.genome.edges[i].source-1].project(neurons[this.genome.edges[i].dest-1]);
-        conn.ID = this.genome.edges[i].innovation;
-        conn.weight = this.genome.edges[i].weight;
+    for(var k in this.genome.edges){
+      if(!this.genome.edges[k].disabled){
+        var conn = neurons[this.genome.edges[k].source-1].project(neurons[this.genome.edges[k].dest-1]);
+        conn.ID = parseInt(k);
+        conn.weight = this.genome.edges[k].weight;
       }
     }
     this.neurons = neurons;
   },
 
   fitnessFunction : function(s){
-    this.fitness = Math.ceil(Math.pow(s,2)/Math.sqrt(1+this.genome.edges.length));
+    this.fitness = Math.ceil(Math.pow(s,2)/Math.sqrt(1+Object.keys(this.genome.edges).length));
   },
 
   activateNeuralNetwork : function(inputs){
@@ -584,46 +427,6 @@ Individual.prototype = {
       this.neurons[i].activate();
     }
     return [this.neurons[10].activate() < this.outputThreshold[0] ? 0 : 1, this.neurons[11].activate() < this.outputThreshold[1] ? 0 : 1];
-  },
-
-  activateNeuralNetworkDFS : function(inputs){
-    var activated = [];
-    for(var i = 0; i < 10; i++){
-      this.neurons[i].activate(inputs[i]);
-      activated.push(1);
-    }
-    for(var i = 10; i < this.neurons.length-10; i++){
-      activated.push(0);
-    }
-    var nodestack = [11, 10];
-    while(nodestack.length != 0){
-      if(activated[nodestack[nodestack.length-1]]){
-        nodestack.pop();
-        continue;
-      }
-      activated[nodestack[nodestack.length-1]] = 1;
-      for(var i in this.neurons[nodestack[nodestack.length-1]].connections.inputs){
-        activated[nodestack[nodestack.length-1]] = activated[nodestack[nodestack.length-1]] && activated[this.neurons[nodestack[nodestack.length-1]].connections.inputs[i].from.ID-1];
-      }
-      if(activated[nodestack[nodestack.length-1]]){
-        var tn = nodestack.pop();
-        if(tn == 10){
-          outputs[0] = this.neurons[tn].activate();
-        }
-        else if(tn == 11){
-          outputs[1] = this.neurons[tn].activate();
-        }
-        else{
-          this.neurons[tn].activate();
-        }
-      }
-      else{
-        var tl = nodestack.length-1;
-        for(var i in this.neurons[nodestack[tl]].connections.inputs){
-          nodestack.push(this.neurons[nodestack[tl]].connections.inputs[i].from.ID-1);
-        }
-      }
-    }
   }
 };
 
