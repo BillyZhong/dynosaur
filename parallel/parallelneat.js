@@ -42,7 +42,7 @@ NEAT.prototype = {
   startEvolution : function(){
     this.sim = 0;
     var thisNeat = this;
-    this.t = setInterval(function(){if(thisNeat.sim==0){console.log("a");thisNeat.simulateGeneration()}},1000);
+    this.t = setInterval(function(){if(thisNeat.sim==0){thisNeat.simulateGeneration()}},1000);
   },
 
   stopEvolution : function(){
@@ -99,7 +99,8 @@ function Population(popsize){
     enableGeneMutationRate : 0.10,
     edgeMutationRate : 0.25,
     negateEdgeMutationRate : 0.10,
-    crossoverRate : 0.5
+    crossoverRate : 0.5,
+    outputThreshold = [0.5,0.5];
   };
   this.population = [];
   this.generation = 1;
@@ -289,11 +290,11 @@ Population.prototype = {
     }
   },
 
-  edgeSynapsis : function(individual1, individual2){
+  synapsis : function(individual1, individual2){
     var edges = {};
     if(this.population[individual1].fitness == this.population[individual2].fitness){
-      var e = Array.from(new Set(Object.keys(this.population[individual1].genome.edges).concat(Object.keys(this.population[individual2].genome.edges))));
-      for(var k in e){
+      var e = new Set(Object.keys(this.population[individual1].genome.edges).concat(Object.keys(this.population[individual2].genome.edges)));
+      for(let k of e){
         if(Math.random() < this.config.crossoverRate){
           edges[k] = this.population[individual1].genome.edges[k];
         }
@@ -330,13 +331,13 @@ Population.prototype = {
       this.population[individual1] = this.population[individual2];
       this.population[individual2] = t;
     }
-    genome.edges = this.edgeSynapsis(individual1, individual2);
+    genome.edges = this.synapsis(individual1, individual2);
     var n = [];
     for(var k in genome.edges){
       n.push(genome.edges[k].source, genome.edges[k].dest);
     }
-    n = Array.from(new Set(n));
-    for(var k in n){
+    n = new Set(n);
+    for(let k of n){
       if((this.population[individual1].genome.nodes[k] && this.population[individual2].genome.nodes[k]) != undefined){
         if(Math.random() < this.config.crossoverRate){
           genome.nodes[k] = this.population[individual1].genome.nodes[k];
@@ -347,6 +348,22 @@ Population.prototype = {
       }
       else{
         genome.nodes[k] = this.population[individual1].genome.nodes[k] || this.population[individual2].genome.nodes[k];
+      }
+    }
+    if(genome.nodes["11"] == undefined){
+      if(Math.random() < this.config.crossoverRate){
+        genome.nodes["11"] = this.population[individual1].genome.nodes["11"];
+      }
+      else{
+        genome.nodes["11"] = this.population[individual2].genome.nodes["11"];
+      }
+    }
+    if(genome.nodes["12"] == undefined){
+      if(Math.random() < this.config.crossoverRate){
+        genome.nodes["12"] = this.population[individual1].genome.nodes["12"];
+      }
+      else{
+        genome.nodes["12"] = this.population[individual2].genome.nodes["12"];
       }
     }
     return genome;
@@ -419,7 +436,6 @@ Population.prototype = {
 function Individual(){
   this.genome = {species:0, nodes:{11:Math.random()*2-1, 12:Math.random()*2-1},edges:{}};
   this.fitness = 0;
-  this.outputThreshold = [0.5,0.5];
   this.neurons;
 };
 
@@ -456,7 +472,7 @@ Individual.prototype = {
     for(var i = 12; i < this.neurons.length; i++){
       this.neurons[i].activate();
     }
-    return [this.neurons[10].activate() < this.outputThreshold[0] ? 0 : 1, this.neurons[11].activate() < this.outputThreshold[1] ? 0 : 1];
+    return [this.neurons[10].activate() < neat.p.config.outputThreshold[0] ? 0 : 1, this.neurons[11].activate() < neat.p.config.outputThreshold[1] ? 0 : 1];
   }
 };
 
