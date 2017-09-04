@@ -289,34 +289,64 @@ Population.prototype = {
     }
   },
 
-  synapsis : function(individual1, individual2){
-
+  edgeSynapsis : function(individual1, individual2){
+    var edges = {};
+    if(this.population[individual1].fitness == this.population[individual2].fitness){
+      var e = Array.from(new Set(Object.keys(this.population[individual1].genome.edges).concat(Object.keys(this.population[individual2].genome.edges))));
+      for(var k in e){
+        if(Math.random() < this.config.crossoverRate){
+          edges[k] = this.population[individual1].genome.edges[k];
+        }
+        else{
+          edges[k] = this.population[individual2].genome.edges[k];
+        }
+        if(edges[k] == undefined){
+          delete edges[k];
+        }
+      }
+    }
+    else{
+      for(var k in this.population[individual1].genome.edges){
+        if(this.population[individual2].genome.edges[k] != undefined){
+          if(Math.random() < this.config.crossoverRate){
+            edges[k] = this.population[individual1].genome.edges[k];
+          }
+          else{
+            edges[k] = this.population[individual2].genome.edges[k];
+          }
+        }
+        else{
+          edges[k] = this.population[individual1].genome.edges[k];
+        }
+      }
+    }
+    return edges;
   },
 
-  graphCrossover : function(individual1, individual2){
-    var genome = {species:0, nodes:[],edges:[]};
+  crossover : function(individual1, individual2){
+    var genome = {species:0, nodes:{},edges:{}};
     if(this.population[individual1].fitness < this.population[individual2].fitness){
       var t = this.population[individual1];
       this.population[individual1] = this.population[individual2];
       this.population[individual2] = t;
     }
-    genome.edges = this.synapsis(individual1, individual2);
-    var maxnode = 12;
-    for(var i = 0; i < genome.edges.length; i++){
-      maxnode = Math.max(maxnode, genome.edges[i].source, genome.edges[i].dest);
+    genome.edges = this.edgeSynapsis(individual1, individual2);
+    var n = [];
+    for(var k in genome.edges){
+      n.push(genome.edges[k].source, genome.edges[k].dest);
     }
-    for(var i = 0; i < maxnode-10; i++){
-      if(i >= Object.keys(this.population[individual2].genome.nodes).length){
-        genome.nodes.push(this.population[individual1].genome.nodes[i]);
-      }
-      else if(i >= Object.keys(this.population[individual1].genome.nodes).length){
-        genome.nodes.push(this.population[individual2].genome.nodes[i]);
-      }
-      else if(Math.random() < this.config.crossoverRate){
-        genome.nodes.push(this.population[individual1].genome.nodes[i]);
+    n = Array.from(new Set(n));
+    for(var k in n){
+      if((this.population[individual1].genome.nodes[k] && this.population[individual2].genome.nodes[k]) != undefined){
+        if(Math.random() < this.config.crossoverRate){
+          genome.nodes[k] = this.population[individual1].genome.nodes[k];
+        }
+        else{
+          genome.nodes[k] = this.population[individual2].genome.nodes[k];
+        }
       }
       else{
-        genome.nodes.push(this.population[individual2].genome.nodes[i]);
+        genome.nodes[k] = this.population[individual1].genome.nodes[k] || this.population[individual2].genome.nodes[k];
       }
     }
     return genome;
@@ -372,7 +402,7 @@ Population.prototype = {
   evolvePop : function(){
     this.selection();
     for(var i = 0; i < 2*this.population.length/3; i+=2){
-      this.population[2*this.population.length/3 + i/2].genome = this.graphCrossover(i,i+1);
+      this.population[2*this.population.length/3 + i/2].genome = this.crossover(i,i+1);
     }
     for(var i = 0; i < this.population.length; i++){
       this.edgeMutation(i);
