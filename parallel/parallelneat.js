@@ -337,6 +337,9 @@ Population.prototype = {
       n.push(genome.edges[k].source, genome.edges[k].dest);
     }
     n = new Set(n);
+    for(var i = 1; i < 11; i++){
+      n.delete(i);
+    }
     for(let k of n){
       if((this.population[individual1].genome.nodes[k] && this.population[individual2].genome.nodes[k]) != undefined){
         if(Math.random() < this.config.crossoverRate){
