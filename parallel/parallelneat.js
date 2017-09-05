@@ -444,19 +444,19 @@ function Individual(){
 
 Individual.prototype = {
   generateNeuralNetwork : function(){
-    var neurons = [];
-    for(var i = 0; i < 10; i++){
-      neurons.push(new synaptic.Neuron());
-      neurons[i].ID = i+1;
+    var neurons = {};
+    for(var i = 1; i < 11; i++){
+      neurons[i] = new synaptic.Neuron();
+      neurons[i].ID = i;
     }
     for(var k in this.genome.nodes){
-      neurons.push(new synaptic.Neuron());
-      neurons[neurons.length-1].ID = parseInt(k);
-      neurons[neurons.length-1].bias = this.genome.nodes[k];
+      neurons[parseInt(k)] = new synaptic.Neuron();
+      neurons[parseInt(k)].ID = parseInt(k);
+      neurons[parseInt(k)].bias = this.genome.nodes[k];
     }
     for(var k in this.genome.edges){
       if(!this.genome.edges[k].disabled){
-        var conn = neurons[this.genome.edges[k].source-1].project(neurons[this.genome.edges[k].dest-1]);
+        var conn = neurons[this.genome.edges[k].source].project(neurons[this.genome.edges[k].dest]);
         conn.ID = parseInt(k);
         conn.weight = this.genome.edges[k].weight;
       }
@@ -469,13 +469,17 @@ Individual.prototype = {
   },
 
   activateNeuralNetwork : function(inputs){
-    for(var i = 0; i < 10; i++){
-      this.neurons[i].activate(inputs[i]);
+    for(var k in this.neurons){
+      if(parseInt(k) < 11){
+        this.neurons[k].activate(inputs[parseInt(k)-1]);
+      }
+      else{
+        if(k != "11" || k != "12"){
+          this.neurons[k].activate();
+        }
+      }
     }
-    for(var i = 12; i < this.neurons.length; i++){
-      this.neurons[i].activate();
-    }
-    return [this.neurons[10].activate() < neat.p.config.outputThreshold[0] ? 0 : 1, this.neurons[11].activate() < neat.p.config.outputThreshold[1] ? 0 : 1];
+    return [this.neurons[11].activate() < neat.p.config.outputThreshold[0] ? 0 : 1, this.neurons[12].activate() < neat.p.config.outputThreshold[1] ? 0 : 1];
   }
 };
 
