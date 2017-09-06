@@ -99,10 +99,11 @@ function Population(popsize){
     enableGeneMutationRate : 0.10,
     edgeMutationRate : 0.25,
     negateEdgeMutationRate : 0.10,
-    crossoverRate : 0.7,
+    crossoverRate : 0.5,
     outputThreshold : [0.5,0.5]
   };
   this.population = [];
+  this.genepool = [];
   this.generation = 1;
   this.innovations = [];
   this.maxFitness = [];
@@ -114,28 +115,18 @@ function Population(popsize){
 };
 
 Population.prototype = {
-  selection : function(){
-    var tempMaxFit = -1;
-    var tempPop = [];
-    var tempFitness = [];
+  select : function(){
     var totalFitness = 0;
-    for(var i = 0; i < this.population.length; i++){
-      totalFitness += this.population[i].fitness;
+    for(var i = 0; i < this.genepool.length; i++){
+      totalFitness += this.genepool[i].fitness;
     }
-    while(this.population.length > 0){
-      var randFitness = Math.random()*totalFitness;
-      var selectedIndividual = 0;
-      while(randFitness > 0){
-        randFitness -= this.population[selectedIndividual].fitness;
-        selectedIndividual++;
-      }
-      tempPop.push(this.population[selectedIndividual-1]);
-      totalFitness -= this.population[selectedIndividual-1].fitness;
-      tempMaxFit = Math.max(tempMaxFit, this.population[selectedIndividual-1].fitness);
-      this.population.splice(selectedIndividual-1, 1);
+    var randFitness = Math.random()*totalFitness;
+    var selectedIndividual = 0;
+    while(randFitness > 0){
+      randFitness -= this.genepool[selectedIndividual].fitness;
+      selectedIndividual++;
     }
-    this.population = tempPop;
-    this.maxFitness.push(tempMaxFit);
+    return Json
   },
 
   nodeMutation : function(individual){
