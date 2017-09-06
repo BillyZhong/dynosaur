@@ -198,39 +198,29 @@ Population.prototype = {
 
   edgeMutation : function(individual){
     if(Math.random() < this.config.addEdgeMutationRate){
-      var adjhash = [];
-      for(var i = 0; i < Object.keys(this.population[individual].genome.nodes).length + 10; i++){
-        adjhash.push([]);
-        for(var j = 0; j < Object.keys(this.population[individual].genome.nodes).length + 10; j++){
-          adjhash[i].push(0);
+      var nonedges = new Set();
+      for(var i = 1; i < 11; i++){
+        for(var k in this.population[individual].genome.nodes){
+          nonedges.add(pi(i,parseInt(k)));
+        }
+      }
+      for(var k in this.population[individual].genome.nodes){
+        for(var l in this.population[individual].genome.nodes){
+          nonedges.add(pi(parseInt(k),parseInt(l)));
         }
       }
       for(var k in this.population[individual].genome.edges){
-        adjhash[this.population[individual].genome.edges[k].source-1][this.population[individual].genome.edges[k].dest-1] = 1;
+        nonedges.delete(pi(this.population[individual].genome.edges[k].source,this.population[individual].genome.edges[k].dest));
       }
-      var nonedges = [];
-      for(var i = 0; i < 10; i++){
-        for(var j = 10; j < Object.keys(this.population[individual].genome.nodes).length + 10; j++){
-          if(!adjhash[i][j]){
-            nonedges.push({source:i+1,dest:j+1});
-          }
-        }
-      }
-      for(var i = 12; i < Object.keys(this.population[individual].genome.nodes).length + 10; i++){
-        for(var j = 10; j < Object.keys(this.population[individual].genome.nodes).length + 10; j++){
-          if(!adjhash[i][j]){
-            nonedges.push({source:i+1,dest:j+1});
-          }
-        }
-      }
-      if(nonedges.length == 0){
+      if(nonedges.size == 0){
         return;
       }
-      var rne = Math.floor(Math.random()*nonedges.length);
-      var innov = nonedges[rne];
+      var nonedgesarr = Array.from(nonedges);
+      var rne = nonedgesarr[Math.floor(Math.random()*nonedgesarr.length)];
+      var innov = invpi(rne);
       var innovp = -1;
       for(var i = 0; i < this.innovations.length; i++){
-        if(this.innovations[i].source == innov.source && this.innovations[i].dest == innov.dest){
+        if(this.innovations[i].source == innov[0] && this.innovations[i].dest == innov[1]){
           innovp = i+1;
         }
       }
@@ -239,8 +229,8 @@ Population.prototype = {
         innovp = this.innovations.length;
       }
       this.population[individual].genome.edges[innovp.toString()] = {
-        source: innov.source,
-        dest: innov.dest,
+        source: innov[0],
+        dest: innov[1],
         weight: Math.random()*2-1,
         disabled: 0
       };
