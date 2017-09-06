@@ -225,7 +225,7 @@ Population.prototype = {
         }
       }
       if(innovp == -1){
-        this.innovations.push(innov);
+        this.innovations.push({source : innov[0], dest : innov[1]});
         innovp = this.innovations.length;
       }
       this.population[individual].genome.edges[innovp.toString()] = {
