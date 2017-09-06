@@ -306,7 +306,7 @@ Population.prototype = {
   },
 
   crossover : function(individual1, individual2){
-    var genome = {species:0, nodes:{},edges:{}};
+    var genome = {nodes:{},edges:{}};
     if(this.population[individual1].fitness < this.population[individual2].fitness){
       var t = this.population[individual1];
       this.population[individual1] = this.population[individual2];
@@ -405,7 +405,8 @@ Population.prototype = {
 }
 
 function Individual(){
-  this.genome = {species:0, nodes:{11:Math.random()*2-1, 12:Math.random()*2-1},edges:{}};
+  this.species = 0;
+  this.genome = {nodes:{11:Math.random()*2-1, 12:Math.random()*2-1},edges:{}};
   this.fitness = 0;
   this.neurons;
 };

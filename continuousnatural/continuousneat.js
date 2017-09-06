@@ -29,25 +29,15 @@ NEAT.prototype = {
     this.t;
   },
 
-  simulateGeneration : function(){
-    this.sim = this.n;
+  startEvolution : function(){
     for(var i = 0; i < this.n; i++){
       this.p.population[i].generateNeuralNetwork();
     }
-    for(var i = 0; i < this.n; i++){
-      this.r[i].restart();
-    }
-  },
-
-  startEvolution : function(){
-    this.sim = 0;
-    var thisNeat = this;
-    this.t = setInterval(function(){if(thisNeat.sim==0){thisNeat.p.evolvePop();thisNeat.simulateGeneration()}},1000);
+    this.sim = 1;
   },
 
   stopEvolution : function(){
-    clearInterval(this.t);
-    delete this.t;
+    this.sim = 0;
   },
 
   exportJSON : function(){
@@ -99,7 +89,7 @@ function Population(popsize){
     enableGeneMutationRate : 0.10,
     edgeMutationRate : 0.25,
     negateEdgeMutationRate : 0.10,
-    crossoverRate : 0.7,
+    crossoverRate : 0.5,
     outputThreshold : [0.5,0.5]
   };
   this.population = [];
@@ -114,44 +104,24 @@ function Population(popsize){
 };
 
 Population.prototype = {
-  selection : function(){
-    var tempMaxFit = -1;
-    var tempPop = [];
-    var tempFitness = [];
-    var totalFitness = 0;
-    for(var i = 0; i < this.population.length; i++){
-      totalFitness += this.population[i].fitness;
-    }
-    while(this.population.length > 0){
-      var randFitness = Math.random()*totalFitness;
-      var selectedIndividual = 0;
-      while(randFitness > 0){
-        randFitness -= this.population[selectedIndividual].fitness;
-        selectedIndividual++;
-      }
-      tempPop.push(this.population[selectedIndividual-1]);
-      totalFitness -= this.population[selectedIndividual-1].fitness;
-      tempMaxFit = Math.max(tempMaxFit, this.population[selectedIndividual-1].fitness);
-      this.population.splice(selectedIndividual-1, 1);
-    }
-    this.population = tempPop;
-    this.maxFitness.push(tempMaxFit);
+  select : function(){
+    return JSON.parse(JSON.stringify(this.population[Math.floor(Math.random()*this.population.length)].genome));
   },
 
   nodeMutation : function(individual){
     if(Math.random() < this.config.addNodeMutationRate){
       var enabledEdges = [];
-      for(var k in this.population[individual].genome.edges){
-        if(!this.population[individual].genome.edges[k].disabled){
+      for(var k in individual.edges){
+        if(!individual.edges[k].disabled){
           enabledEdges.push(k);
         }
       }
       if(enabledEdges.length > 0){
         var p = enabledEdges[Math.floor(Math.random()*enabledEdges.length)];
 
-        this.population[individual].genome.edges[p].disabled = 1;
+        individual.edges[p].disabled = 1;
         var lnode = 10;
-        for(var k in this.population[individual].genome.nodes){
+        for(var k in individual.nodes){
           if(parseInt(k) != lnode+1){
             break;
           }
@@ -159,36 +129,36 @@ Population.prototype = {
             lnode = parseInt(k);
           }
         }
-        this.population[individual].genome.nodes[(lnode+1).toString()] = Math.random()*2-1;
+        individual.nodes[(lnode+1).toString()] = Math.random()*2-1;
         var innovp = -1;
         for(var i = 0; i < this.innovations.length; i++){
-          if(this.innovations[i].source == this.population[individual].genome.edges[p].source && this.innovations[i].dest == lnode+1){
+          if(this.innovations[i].source == individual.edges[p].source && this.innovations[i].dest == lnode+1){
             innovp = i+1;
           }
         }
         if(innovp == -1){
-          this.innovations.push({source:this.population[individual].genome.edges[p].source,dest:lnode+1});
+          this.innovations.push({source:individual.edges[p].source,dest:lnode+1});
           innovp = this.innovations.length;
         }
-        this.population[individual].genome.edges[innovp.toString()] = {
-          source: this.population[individual].genome.edges[p].source,
+        individual.edges[innovp.toString()] = {
+          source: individual.edges[p].source,
           dest: lnode+1,
           weight: Math.random()*2-1,
           disabled: 0
         };
         innovp = -1;
         for(var i = 0; i < this.innovations.length; i++){
-          if(this.innovations[i].source == lnode+1 && this.innovations[i].dest == this.population[individual].genome.edges[p].dest){
+          if(this.innovations[i].source == lnode+1 && this.innovations[i].dest == individual.edges[p].dest){
             innovp = i+1;
           }
         }
         if(innovp == -1){
-          this.innovations.push({source:lnode+1,dest:this.population[individual].genome.edges[p].dest});
+          this.innovations.push({source:lnode+1,dest:individual.edges[p].dest});
           innovp = this.innovations.length;
         }
-        this.population[individual].genome.edges[innovp.toString()] = {
+        individual.edges[innovp.toString()] = {
           source: lnode+1,
-          dest: this.population[individual].genome.edges[p].dest,
+          dest: individual.edges[p].dest,
           weight: Math.random()*2-1,
           disabled: 0
         };
@@ -200,17 +170,17 @@ Population.prototype = {
     if(Math.random() < this.config.addEdgeMutationRate){
       var nonedges = new Set();
       for(var i = 1; i < 11; i++){
-        for(var k in this.population[individual].genome.nodes){
+        for(var k in individual.nodes){
           nonedges.add(pi(i,parseInt(k)));
         }
       }
-      for(var k in this.population[individual].genome.nodes){
-        for(var l in this.population[individual].genome.nodes){
+      for(var k in individual.nodes){
+        for(var l in individual.nodes){
           nonedges.add(pi(parseInt(k),parseInt(l)));
         }
       }
-      for(var k in this.population[individual].genome.edges){
-        nonedges.delete(pi(this.population[individual].genome.edges[k].source,this.population[individual].genome.edges[k].dest));
+      for(var k in individual.edges){
+        nonedges.delete(pi(individual.edges[k].source,individual.edges[k].dest));
       }
       if(nonedges.size == 0){
         return;
@@ -228,7 +198,7 @@ Population.prototype = {
         this.innovations.push({source : innov[0], dest : innov[1]});
         innovp = this.innovations.length;
       }
-      this.population[individual].genome.edges[innovp.toString()] = {
+      individual.edges[innovp.toString()] = {
         source: innov[0],
         dest: innov[1],
         weight: Math.random()*2-1,
@@ -239,76 +209,59 @@ Population.prototype = {
 
   deleteEdgeMutation : function(individual){
     if(Math.random() < this.config.deleteEdgeMutationRate){
-      delete this.population[individual].genome.edges[Object.keys(this.population[individual].genome.edges)[Math.floor(Math.random()*Object.keys(this.population[individual].genome.edges).length)]];
+      delete individual.edges[Object.keys(individual.edges)[Math.floor(Math.random()*Object.keys(individual.edges).length)]];
     }
   },
 
   biasMutation : function(individual){
-    for(var k in this.population[individual].genome.nodes){
+    for(var k in individual.nodes){
       if(Math.random() < this.config.biasMutationRate){
-        this.population[individual].genome.nodes[k] += z.nextGaussian()*0.1;
-        this.population[individual].genome.nodes[k] = this.population[individual].genome.nodes[k] > 1 ? 1 : this.population[individual].genome.nodes[k];
-        this.population[individual].genome.nodes[k] = this.population[individual].genome.nodes[k] < -1 ? -1 : this.population[individual].genome.nodes[k];
+        individual.nodes[k] += z.nextGaussian()*0.1;
+        individual.nodes[k] = individual.nodes[k] > 1 ? 1 : individual.nodes[k];
+        individual.nodes[k] = individual.nodes[k] < -1 ? -1 : individual.nodes[k];
       }
       if(Math.random() < this.config.negateBiasMutationRate){
-        this.population[individual].genome.nodes[k] = -this.population[individual].genome.nodes[k];
+        individual.nodes[k] = -individual.nodes[k];
       }
     }
   },
 
   disableMutation : function(individual){
-    for(var k in this.population[individual].genome.edges){
+    for(var k in individual.edges){
       if(Math.random() < this.disableGeneMutationRate){
-        this.population[individual].genome.edges[k].disabled = 1;
+        individual.edges[k].disabled = 1;
       }
       else if(Math.random() < this.enableGeneMutationRate){
-        this.population[individual].genome.edges[k].disabled = 0;
+        individual.edges[k].disabled = 0;
       }
     }
   },
 
   weightMutation : function(individual){
-    for(var k in this.population[individual].genome.edges){
+    for(var k in individual.edges){
       if(Math.random() < this.edgeMutationRate){
-        this.population[individual].genome.edges[k].weight += z.nextGaussian()*0.1;
-        this.population[individual].genome.edges[k].weight = this.population[individual].genome.edges[k].weight > 1 ? 1 : this.population[individual].genome.edges[k].weight;
-        this.population[individual].genome.edges[k].weight = this.population[individual].genome.edges[k].weight < -1 ? -1 : this.population[individual].genome.edges[k].weight;
+        individual.edges[k].weight += z.nextGaussian()*0.1;
+        individual.edges[k].weight = individual.edges[k].weight > 1 ? 1 : individual.edges[k].weight;
+        individual.edges[k].weight = individual.edges[k].weight < -1 ? -1 : individual.edges[k].weight;
       }
       if(Math.random() < this.negateEdgeMutationRate){
-        this.population[individual].genome.edges[k].weight = -this.population[individual].genome.edges[k].weight;
+        individual.edges[k].weight = -individual.edges[k].weight;
       }
     }
   },
 
   synapsis : function(individual1, individual2){
     var edges = {};
-    if(this.population[individual1].fitness == this.population[individual2].fitness){
-      var e = new Set(Object.keys(this.population[individual1].genome.edges).concat(Object.keys(this.population[individual2].genome.edges)));
-      for(let k of e){
-        if(Math.random() < this.config.crossoverRate){
-          edges[k] = this.population[individual1].genome.edges[k];
-        }
-        else{
-          edges[k] = this.population[individual2].genome.edges[k];
-        }
-        if(edges[k] == undefined){
-          delete edges[k];
-        }
+    var e = new Set(Object.keys(individual1.edges).concat(Object.keys(individual2.edges)));
+    for(let k of e){
+      if(Math.random() < this.config.crossoverRate){
+        edges[k] = individual1.edges[k];
       }
-    }
-    else{
-      for(var k in this.population[individual1].genome.edges){
-        if(this.population[individual2].genome.edges[k] != undefined){
-          if(Math.random() < this.config.crossoverRate){
-            edges[k] = this.population[individual1].genome.edges[k];
-          }
-          else{
-            edges[k] = this.population[individual2].genome.edges[k];
-          }
-        }
-        else{
-          edges[k] = this.population[individual1].genome.edges[k];
-        }
+      else{
+        edges[k] = individual2.edges[k];
+      }
+      if(edges[k] == undefined){
+        delete edges[k];
       }
     }
     return edges;
@@ -316,11 +269,6 @@ Population.prototype = {
 
   crossover : function(individual1, individual2){
     var genome = {nodes:{},edges:{}};
-    if(this.population[individual1].fitness < this.population[individual2].fitness){
-      var t = this.population[individual1];
-      this.population[individual1] = this.population[individual2];
-      this.population[individual2] = t;
-    }
     genome.edges = this.synapsis(individual1, individual2);
     var n = [];
     for(var k in genome.edges){
@@ -331,46 +279,46 @@ Population.prototype = {
       n.delete(i);
     }
     for(let k of n){
-      if((this.population[individual1].genome.nodes[k] && this.population[individual2].genome.nodes[k]) != undefined){
+      if((individual1.nodes[k] && individual2.nodes[k]) != undefined){
         if(Math.random() < this.config.crossoverRate){
-          genome.nodes[k] = this.population[individual1].genome.nodes[k];
+          genome.nodes[k] = individual1.nodes[k];
         }
         else{
-          genome.nodes[k] = this.population[individual2].genome.nodes[k];
+          genome.nodes[k] = individual2.nodes[k];
         }
       }
       else{
-        genome.nodes[k] = this.population[individual1].genome.nodes[k] || this.population[individual2].genome.nodes[k];
+        genome.nodes[k] = individual1.nodes[k] || individual2.nodes[k];
       }
     }
     if(genome.nodes["11"] == undefined){
       if(Math.random() < this.config.crossoverRate){
-        genome.nodes["11"] = this.population[individual1].genome.nodes["11"];
+        genome.nodes["11"] = individual1.nodes["11"];
       }
       else{
-        genome.nodes["11"] = this.population[individual2].genome.nodes["11"];
+        genome.nodes["11"] = individual2.nodes["11"];
       }
     }
     if(genome.nodes["12"] == undefined){
       if(Math.random() < this.config.crossoverRate){
-        genome.nodes["12"] = this.population[individual1].genome.nodes["12"];
+        genome.nodes["12"] = individual1.nodes["12"];
       }
       else{
-        genome.nodes["12"] = this.population[individual2].genome.nodes["12"];
+        genome.nodes["12"] = individual2.nodes["12"];
       }
     }
     return genome;
   },
 
   distanceFunction : function(individual1, individual2, c1, c2, c3){
-    var N = 1+Math.max(Object.keys(this.population[individual1].genome.edges).length, Object.keys(this.population[individual2].genome.edges).length);
+    var N = 1+Math.max(Object.keys(individual1.edges).length, Object.keys(individual2.edges).length);
     var E = 0;
     var D = 0;
     var W = 0;
     var m = 0;
-    for(var k in this.population[individual1].genome.edges){
-      if(this.population[individual2].genome.edges[k] == undefined){
-        if(Object.keys(this.population[individual2].genome.edges).length == 0 || k > Object.keys(this.population[individual2].genome.edges)[Object.keys(this.population[individual2].genome.edges).length-1]){
+    for(var k in individual1.edges){
+      if(individual2.edges[k] == undefined){
+        if(Object.keys(individual2.edges).length == 0 || k > Object.keys(individual2.edges)[Object.keys(individual2.edges).length-1]){
           E++;
         }
         else{
@@ -378,13 +326,13 @@ Population.prototype = {
         }
       }
       else{
-        W += Math.abs(this.population[individual1].genome.edges[k].weight - this.population[individual2].genome.edges[k].weight)
+        W += Math.abs(individual1.edges[k].weight - individual2.edges[k].weight)
         m++;
       }
     }
-    for(var k in this.population[individual2].genome.edges){
-      if(this.population[individual1].genome.edges[k] == undefined){
-        if(Object.keys(this.population[individual1].genome.edges).length == 0 || k > Object.keys(this.population[individual1].genome.edges)[Object.keys(this.population[individual1].genome.edges).length-1]){
+    for(var k in individual2.edges){
+      if(individual1.edges[k] == undefined){
+        if(Object.keys(individual1.edges).length == 0 || k > Object.keys(individual1.edges)[Object.keys(individual1.edges).length-1]){
           E++;
         }
         else{
@@ -396,20 +344,17 @@ Population.prototype = {
     return c1*E/N + c2*D/N + c3*W;
   },
 
-  evolvePop : function(){
-    this.selection();
-    for(var i = 0; i < 2*this.population.length/3; i+=2){
-      this.population[2*this.population.length/3 + i/2].genome = this.crossover(i,i+1);
-    }
-    for(var i = 0; i < this.population.length; i++){
-      this.edgeMutation(i);
-      this.nodeMutation(i);
-      this.deleteEdgeMutation(i);
-      this.biasMutation(i);
-      this.disableMutation(i);
-      this.weightMutation(i);
-    }
-    this.generation++;
+  evolve : function(individual){
+    var in1 = this.select();
+    var in2 = this.select();
+    var ch = this.crossover(in1,in2);
+    this.edgeMutation(ch);
+    this.nodeMutation(ch);
+    this.deleteEdgeMutation(ch);
+    this.biasMutation(ch);
+    this.disableMutation(ch);
+    this.weightMutation(ch);
+    this.population[individual].genome = ch;
   }
 }
 
