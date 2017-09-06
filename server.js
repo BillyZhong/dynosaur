@@ -5,4 +5,4 @@ app.get('*', function(req,res){
   res.sendFile('/Users/billy/dynosaur/' + req.path);
 });
 
-app.listen(8080);
+app.listen(80);
