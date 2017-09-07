@@ -138,8 +138,13 @@ Rank.prototype = {
 
   select : function(){
     var c = this.r;
-    while(Math.random() > 0.5){
+    var i = this.l == 0 ? 1 : this.l;
+    var t = i;
+    var r = Math.random()*pi(t,0);
+    while(r > i){
       c = this.post[c];
+      r-=i;
+      i--;
     }
     return c;
   }
@@ -173,7 +178,7 @@ function Population(popsize){
 
 Population.prototype = {
   select : function(){
-    if(this.rank.l > 10){
+    if(this.rank.l > 1){
       return JSON.parse(JSON.stringify(this.population[this.rank.select()].genome));
     }
     else{
