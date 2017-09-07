@@ -138,7 +138,7 @@ Rank.prototype = {
 
   select : function(){
     var c = this.r;
-    while(Math.random() < 0.5){
+    while(Math.random() > 0.5){
       c = this.post[c];
     }
     return c;
