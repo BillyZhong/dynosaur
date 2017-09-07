@@ -78,6 +78,62 @@ NEAT.prototype = {
   }
 };
 
+function Rank(n){
+  this.r = -1;
+  this.t = -1;
+  this.n = n;
+  this.pre = [];
+  this.post = [];
+  for(var i = 0; i < this.n; i++){
+    this.pre.push(-1);
+    this.post.push(-1);
+  }
+};
+
+Rank.prototype = {
+  traverse : function(){
+    var c = this.r;
+    while(c != -1){
+      console.log(c);
+      c = this.post[c];
+    }
+  },
+
+  queue : function(addr){
+    if(this.pre[addr] != -1 && this.post[addr] != -1){
+      return;
+    }
+    if(this.r == -1){
+      this.r = addr;
+    }
+    else{
+      this.post[this.t] = addr;
+    }
+    this.pre[addr] = this.t;
+    this.t = addr;
+  },
+
+  delete : function(addr){
+    if(this.r == -1 && this.t == -1){
+      return;
+    }
+    if(this.t == addr){
+      this.t = this.pre[addr];
+    }
+    else{
+      this.pre[this.post[addr]] = this.pre[addr];
+    }
+    if(this.r == addr){
+      this.r = this.post[addr];
+    }
+    else{
+      this.post[this.pre[addr]] = this.post[addr];
+    }
+    this.pre[addr] = -1;
+    this.post[addr] = -1;
+  }
+};
+
 function Population(popsize){
   this.config = {
     addEdgeMutationRate : 0.15,
@@ -93,6 +149,7 @@ function Population(popsize){
     outputThreshold : [0.5,0.5]
   };
   this.population = [];
+  this.rank = new Rank(popsize);
   this.generation = 1;
   this.innovations = [];
   this.maxFitness = [];
