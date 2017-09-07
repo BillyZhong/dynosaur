@@ -152,15 +152,15 @@ Rank.prototype = {
 
 function Population(popsize){
   this.config = {
-    addEdgeMutationRate : 0.15,
-    addNodeMutationRate : 0.10,
-    deleteEdgeMutationRate : 0.10,
-    biasMutationRate : 0.25,
-    negateBiasMutationRate : 0.10,
+    addEdgeMutationRate : 0.07,
+    addNodeMutationRate : 0.05,
+    deleteEdgeMutationRate : 0.06,
+    biasMutationRate : 0.12,
+    negateBiasMutationRate : 0.05,
     disableGeneMutationRate : 0.05,
-    enableGeneMutationRate : 0.10,
-    edgeMutationRate : 0.25,
-    negateEdgeMutationRate : 0.10,
+    enableGeneMutationRate : 0.06,
+    edgeMutationRate : 0.12,
+    negateEdgeMutationRate : 0.05,
     crossoverRate : 0.5,
     outputThreshold : [0.5,0.5]
   };
