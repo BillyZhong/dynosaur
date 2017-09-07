@@ -82,6 +82,7 @@ function Rank(n){
   this.r = -1;
   this.t = -1;
   this.n = n;
+  this.l = 0;
   this.pre = [];
   this.post = [];
   for(var i = 0; i < this.n; i++){
@@ -111,10 +112,11 @@ Rank.prototype = {
     }
     this.pre[addr] = this.t;
     this.t = addr;
+    this.l++;
   },
 
   delete : function(addr){
-    if(this.r == -1 && this.t == -1){
+    if(this.pre[addr] == -1 && this.post[addr] == -1){
       return;
     }
     if(this.t == addr){
@@ -131,6 +133,15 @@ Rank.prototype = {
     }
     this.pre[addr] = -1;
     this.post[addr] = -1;
+    this.l--;
+  },
+
+  select : function(){
+    var c = this.r;
+    while(Math.random() < 0.5){
+      c = this.post[c];
+    }
+    return c;
   }
 };
 
@@ -162,7 +173,12 @@ function Population(popsize){
 
 Population.prototype = {
   select : function(){
-    return JSON.parse(JSON.stringify(this.population[Math.floor(Math.random()*this.population.length)].genome));
+    if(this.rank.l > 10){
+      return JSON.parse(JSON.stringify(this.population[this.rank.select()].genome));
+    }
+    else{
+      return JSON.parse(JSON.stringify(this.population[Math.floor(Math.random()*this.population.length)].genome));
+    }
   },
 
   nodeMutation : function(individual){

@@ -661,8 +661,10 @@ Runner.prototype = {
       this.downPressed = 0;
       neat.p.population[this.neatId].fitnessFunction(isNaN(parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4])) ? 0 : parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4]));
       if(neat.sim){
+        neat.p.rank.delete(this.neatId);
         neat.p.evolve(this.neatId);
         neat.p.population[this.neatId].generateNeuralNetwork();
+        neat.p.rank.queue(this.neatId);
         this.restart();
       }
     }
