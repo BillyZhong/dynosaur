@@ -633,10 +633,6 @@ Runner.prototype = {
               this.down(0);
               this.up(0);
             }
-            if(learn){
-              net.activate(inputs);
-    	        net.propagate(0.001, outputs);
-            }
           }
           else{
             inputs[0] = -this.tRex.yPos + 93;
@@ -664,6 +660,11 @@ Runner.prototype = {
               inputs[7] = 999;
               inputs[8] = 999;
               inputs[9] = 999;
+            }
+            if(learn){
+              data.push({input:inputs.slice(0),output:outputs.slice(0)});
+              net.activate(inputs);
+    	        net.propagate(0.001, outputs);
             }
           }
         }
@@ -803,7 +804,9 @@ Runner.prototype = {
       return;
     }
     if(e.srcElement == document.body){
-      outputs[e.keyCode/2-19] = 1;
+      if(e.keyCode == 38 || e.keyCode == 40){
+        outputs[e.keyCode/2-19] = 1;
+      }
     }
     // Prevent native page scrolling whilst tapping on mobile.
     if (IS_MOBILE) {
@@ -853,7 +856,9 @@ Runner.prototype = {
       return;
     }
     if(e.srcElement == document.body){
-      outputs[e.keyCode/2-19] = 0;
+      if(e.keyCode == 38 || e.keyCode == 40){
+        outputs[e.keyCode/2-19] = 0;
+      }
     }
     var keyCode = String(e.keyCode);
     var isjumpKey = Runner.keycodes.JUMP[keyCode] ||
