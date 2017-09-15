@@ -10,3 +10,7 @@ var data = [];
 
 var net = new synaptic.Architect.LSTM(10,6,2);
 var trainer = new synaptic.Trainer(net);
+trainer.rate = 0.05;
+trainer.iterations = 5000;
+trainer.cost = synaptic.Trainer.cost.MSE;
+trainer.log = 1000;
