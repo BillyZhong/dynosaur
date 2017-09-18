@@ -86,7 +86,7 @@ var DEFAULT_WIDTH = 600;
  * Frames per second.
  * @const
  */
-var FPS = config.fps;
+var FPS = 60;
 
 /** @const */
 var IS_HIDPI = window.devicePixelRatio > 1;

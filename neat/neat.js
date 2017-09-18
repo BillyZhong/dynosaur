@@ -10,8 +10,7 @@ var config = {
   edgeMutationRate : 0.25,
   negateEdgeMutationRate : 0.10,
   crossoverRate : 0.5,
-  outputThreshold : [0.5,0.5],
-  fps : 60
+  outputThreshold : [0.5,0.5]
 };
 var z = new Ziggurat();
 var population = [];
