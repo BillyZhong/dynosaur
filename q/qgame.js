@@ -670,6 +670,9 @@ Runner.prototype = {
       this.raq();
     }
     else{
+      var error = q.activate(state);
+      error[action] = -999;
+      q.propagate(alpha,error);
       this.tRex.xPos = 25;
       this.upPressed = 0;
       this.downPressed = 0;
