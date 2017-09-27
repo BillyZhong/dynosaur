@@ -11,10 +11,9 @@
  * @constructor
  * @export
  */
-function Runner(outerContainerId, bot, opt_config) {
+function Runner(outerContainerId, opt_config) {
   Runner.instance_ = this;
 
-  this.bot = bot;
   this.outerContainerEl = outerContainerId;
   this.containerEl = null;
   this.snackbarEl = null;
@@ -591,81 +590,62 @@ Runner.prototype = {
         this.frame++;
         this.frame%=3;
         if(this.frame==0){
-          if(this.bot){
-            var binputs = [0,0,0,0,0,0,0,0,0,0];
-            binputs[0] = -this.tRex.yPos + 93;
-            binputs[1] = this.currentSpeed;
-            try {
-              binputs[2] = this.horizon.obstacles[0].xPos + 1;
-              binputs[3] = this.horizon.obstacles[0].xPos + this.horizon.obstacles[0].typeConfig.width * this.horizon.obstacles[0].size - 1;
-              binputs[4] = -(this.horizon.obstacles[0].yPos + 1) + 139;
-              binputs[5] = -(this.horizon.obstacles[0].yPos + this.horizon.obstacles[0].typeConfig.height - 1) + 139;
-            }
-            catch (e) {
-              binputs[2] = 999;
-              binputs[3] = 999;
-              binputs[4] = 999;
-              binputs[5] = 999;
-            }
-            try {
-              binputs[6] = this.horizon.obstacles[1].xPos + 1;
-              binputs[7] = this.horizon.obstacles[1].xPos + this.horizon.obstacles[1].typeConfig.width * this.horizon.obstacles[0].size - 1;
-              binputs[8] = -(this.horizon.obstacles[1].yPos + 1) + 139;
-              binputs[9] = -(this.horizon.obstacles[1].yPos + this.horizon.obstacles[1].typeConfig.height - 1) + 139;
-            }
-            catch (e) {
-              binputs[6] = 999;
-              binputs[7] = 999;
-              binputs[8] = 999;
-              binputs[9] = 999;
-            }
-            var botOutputs = net.activate(binputs);
-            console.log(botOutputs);
-            if(botOutputs[1] > 0.5){
-              this.down(1);
-              this.up(0);
-            }
-            else if(botOutputs[0] > 0.5){
-              this.down(0);
-              this.up(1);
-            }
-            else{
-              this.down(0);
-              this.up(0);
-            }
+          var prevstate = state.slice();
+          state[0] = -this.tRex.yPos + 93;
+          state[1] = this.currentSpeed;
+          try {
+            state[2] = this.horizon.obstacles[0].xPos + 1;
+            state[3] = this.horizon.obstacles[0].xPos + this.horizon.obstacles[0].typeConfig.width * this.horizon.obstacles[0].size - 1;
+            state[4] = -(this.horizon.obstacles[0].yPos + 1) + 139;
+            state[5] = -(this.horizon.obstacles[0].yPos + this.horizon.obstacles[0].typeConfig.height - 1) + 139;
+          }
+          catch (e) {
+            state[2] = 999;
+            state[3] = 999;
+            state[4] = 999;
+            state[5] = 999;
+          }
+          try {
+            state[6] = this.horizon.obstacles[1].xPos + 1;
+            state[7] = this.horizon.obstacles[1].xPos + this.horizon.obstacles[1].typeConfig.width * this.horizon.obstacles[0].size - 1;
+            state[8] = -(this.horizon.obstacles[1].yPos + 1) + 139;
+            state[9] = -(this.horizon.obstacles[1].yPos + this.horizon.obstacles[1].typeConfig.height - 1) + 139;
+          }
+          catch (e) {
+            state[6] = 999;
+            state[7] = 999;
+            state[8] = 999;
+            state[9] = 999;
+          }
+          var qprime = q.activate(state);
+          var error = q.activate(prevstate);
+          error[action] = Math.sqrt(Math.pow((state[0]-state[4]),2)+Math.pow(state[2],2))+gamma*Math.max.apply(null,qprime);
+          q.propagate(alpha,error);
+          var qf = q.activate(state);
+          console.log(qf);
+          if(Math.random() < epsilon){
+            action = Math.floor(Math.random()*3);
           }
           else{
-            inputs[0] = -this.tRex.yPos + 93;
-            inputs[1] = this.currentSpeed;
-            try {
-              inputs[2] = this.horizon.obstacles[0].xPos + 1;
-              inputs[3] = this.horizon.obstacles[0].xPos + this.horizon.obstacles[0].typeConfig.width * this.horizon.obstacles[0].size - 1;
-              inputs[4] = -(this.horizon.obstacles[0].yPos + 1) + 139;
-              inputs[5] = -(this.horizon.obstacles[0].yPos + this.horizon.obstacles[0].typeConfig.height - 1) + 139;
+            action = 0;
+            if(qf[1] > qf[action]){
+              action = 1;
             }
-            catch (e) {
-              inputs[2] = 999;
-              inputs[3] = 999;
-              inputs[4] = 999;
-              inputs[5] = 999;
+            if(qf[2] > qf[action]){
+              action = 2;
             }
-            try {
-              inputs[6] = this.horizon.obstacles[1].xPos + 1;
-              inputs[7] = this.horizon.obstacles[1].xPos + this.horizon.obstacles[1].typeConfig.width * this.horizon.obstacles[0].size - 1;
-              inputs[8] = -(this.horizon.obstacles[1].yPos + 1) + 139;
-              inputs[9] = -(this.horizon.obstacles[1].yPos + this.horizon.obstacles[1].typeConfig.height - 1) + 139;
-            }
-            catch (e) {
-              inputs[6] = 999;
-              inputs[7] = 999;
-              inputs[8] = 999;
-              inputs[9] = 999;
-            }
-            if(learn){
-              data.push({input:inputs.slice(0),output:outputs.slice(0)});
-              net.activate(inputs);
-    	        net.propagate(0.001, outputs);
-            }
+          }
+          if(action == 0){
+            this.down(0);
+            this.up(0);
+          }
+          else if(action == 1){
+            this.down(0);
+            this.up(1);
+          }
+          else if(action == 2){
+            this.up(0);
+            this.down(1);
           }
         }
         this.distanceRan += this.currentSpeed * deltaTime / this.msPerFrame;
@@ -693,9 +673,7 @@ Runner.prototype = {
       this.tRex.xPos = 25;
       this.upPressed = 0;
       this.downPressed = 0;
-      if(this.bot){
-        this.restart();
-      }
+      this.restart();
     }
   },
 
@@ -727,10 +705,8 @@ Runner.prototype = {
     // Keys.
     this.outerContainerEl.addEventListener(Runner.events.KEYDOWN, this);
     this.outerContainerEl.addEventListener(Runner.events.KEYUP, this);
-    if(!this.bot){
-      document.addEventListener(Runner.events.KEYDOWN, this);
-      document.addEventListener(Runner.events.KEYUP, this);
-    }
+    document.addEventListener(Runner.events.KEYDOWN, this);
+    document.addEventListener(Runner.events.KEYUP, this);
 
     if (IS_MOBILE) {
       // Mobile only touch devices.
@@ -779,10 +755,8 @@ Runner.prototype = {
   stopListening: function() {
     this.outerContainerEl.removeEventListener(Runner.events.KEYDOWN, this);
     this.outerContainerEl.removeEventListener(Runner.events.KEYUP, this);
-    if(!this.bot){
-      document.removeEventListener(Runner.events.KEYDOWN, this);
-      document.removeEventListener(Runner.events.KEYUP, this);
-    }
+    document.removeEventListener(Runner.events.KEYDOWN, this);
+    document.removeEventListener(Runner.events.KEYUP, this);
 
     if (IS_MOBILE) {
       this.touchController.removeEventListener(Runner.events.TOUCHSTART, this);
