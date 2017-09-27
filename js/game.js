@@ -1181,6 +1181,8 @@ function drawCollisionBoxes(canvasCtx, tRexBox, obstacleBox) {
   canvasCtx.strokeStyle = '#0f0';
   canvasCtx.strokeRect(obstacleBox.x, obstacleBox.y,
       obstacleBox.width, obstacleBox.height);
+  canvasCtx.strokeStyle = '#00f'
+  canvasCtx.strokeRect(tRexBox.x+44, 139, 2, tRexBox.y-93);
   canvasCtx.restore();
 };
 
@@ -1192,8 +1194,8 @@ function drawAllCollisionBoxes(canvasCtx, tRexBox, obstacles) {
   canvasCtx.clearRect(0,0,600,150);
   canvasCtx.strokeStyle = '#f00';
   canvasCtx.strokeRect(tRexBox.x, tRexBox.y, tRexBox.width, tRexBox.height);
-  canvasCtx.strokeStyle = '#0f0';
   for(var i = 0; i < obstacles.length; i++){
+    canvasCtx.strokeStyle = '#0f0';
     var obstacleBox = new CollisionBox(
         obstacles[i].xPos + 1,
         obstacles[i].yPos + 1,
@@ -1201,7 +1203,11 @@ function drawAllCollisionBoxes(canvasCtx, tRexBox, obstacles) {
         obstacles[i].typeConfig.height - 2);
     canvasCtx.strokeRect(obstacleBox.x, obstacleBox.y,
         obstacleBox.width, obstacleBox.height);
+    canvasCtx.strokeStyle = '#00f';
+    canvasCtx.strokeRect(tRexBox.x+44, 139+5*i,
+        obstacleBox.x-tRexBox.x-44, 2);
   }
+  canvasCtx.strokeRect(tRexBox.x+44, 139, 2, tRexBox.y-93);
   canvasCtx.restore();
 };
 
