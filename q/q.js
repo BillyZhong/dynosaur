@@ -19,7 +19,7 @@ var exportJSON = function(){
   ae.href = 'data:' + data;
   ae.download = 'population.json';
   ae.click();
-},
+};
 
 var importJSON = function(files){
   if(!files){
@@ -37,4 +37,4 @@ var importJSON = function(files){
     }
     fr.readAsText(files.item(0));
   }
-}
+};
