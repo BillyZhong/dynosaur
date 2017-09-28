@@ -791,15 +791,6 @@ Runner.prototype = {
    * @param {Event} e
    */
   onKeyDown: function(e) {
-    if(e.keyCode == 13){
-      learn = !learn;
-      return;
-    }
-    if(e.srcElement == document.body){
-      if(e.keyCode == 38 || e.keyCode == 40){
-        outputs[e.keyCode/2-19] = 1;
-      }
-    }
     // Prevent native page scrolling whilst tapping on mobile.
     if (IS_MOBILE) {
       e.preventDefault();
@@ -844,14 +835,6 @@ Runner.prototype = {
    * @param {Event} e
    */
   onKeyUp: function(e) {
-    if(e.keyCode == 13){
-      return;
-    }
-    if(e.srcElement == document.body){
-      if(e.keyCode == 38 || e.keyCode == 40){
-        outputs[e.keyCode/2-19] = 0;
-      }
-    }
     var keyCode = String(e.keyCode);
     var isjumpKey = Runner.keycodes.JUMP[keyCode] ||
        e.type == Runner.events.TOUCHEND ||
