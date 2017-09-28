@@ -14,7 +14,7 @@
 function Runner(outerContainerId, qId, opt_config) {
   Runner.instance_ = this;
 
-  this.state = [0,0,0,0,0,0,0,0,0,0];
+  this.state = [0,0,0,0,0,0,0,0,0,0,0];
   this.action = 0;
   this.experiences = [];
 
@@ -605,34 +605,35 @@ Runner.prototype = {
         if(this.frame%3 == 0){
           var prevstate = this.state.slice();
           this.state[0] = -this.tRex.yPos + 93;
-          this.state[1] = this.currentSpeed;
+          this.state[1] = -this.tRex.yPos+93+(this.tRex.ducking?25:47);
+          this.state[2] = this.currentSpeed;
           try {
-            this.state[2] = this.horizon.obstacles[0].xPos + 1;
-            this.state[3] = this.horizon.obstacles[0].xPos + this.horizon.obstacles[0].typeConfig.width * this.horizon.obstacles[0].size - 1;
-            this.state[4] = -(this.horizon.obstacles[0].yPos + 1) + 139;
-            this.state[5] = -(this.horizon.obstacles[0].yPos + this.horizon.obstacles[0].typeConfig.height - 1) + 139;
+            this.state[3] = this.horizon.obstacles[0].xPos + 1 - 60;
+            this.state[4] = this.horizon.obstacles[0].xPos + this.horizon.obstacles[0].typeConfig.width * this.horizon.obstacles[0].size - 1 - 60;
+            this.state[5] = -(this.horizon.obstacles[0].yPos + 1) + 139;
+            this.state[6] = -(this.horizon.obstacles[0].yPos + this.horizon.obstacles[0].typeConfig.height - 1) + 139;
           }
           catch (e) {
-            this.state[2] = 999;
             this.state[3] = 999;
             this.state[4] = 999;
             this.state[5] = 999;
+            this.state[6] = 999;
           }
           try {
-            this.state[6] = this.horizon.obstacles[1].xPos + 1;
-            this.state[7] = this.horizon.obstacles[1].xPos + this.horizon.obstacles[1].typeConfig.width * this.horizon.obstacles[0].size - 1;
-            this.state[8] = -(this.horizon.obstacles[1].yPos + 1) + 139;
-            this.state[9] = -(this.horizon.obstacles[1].yPos + this.horizon.obstacles[1].typeConfig.height - 1) + 139;
+            this.state[7] = this.horizon.obstacles[1].xPos + 1 - 60;
+            this.state[8] = this.horizon.obstacles[1].xPos + this.horizon.obstacles[1].typeConfig.width * this.horizon.obstacles[0].size - 1 - 60;
+            this.state[9] = -(this.horizon.obstacles[1].yPos + 1) + 139;
+            this.state[10] = -(this.horizon.obstacles[1].yPos + this.horizon.obstacles[1].typeConfig.height - 1) + 139;
           }
           catch (e) {
-            this.state[6] = 999;
             this.state[7] = 999;
             this.state[8] = 999;
             this.state[9] = 999;
+            this.state[10] = 999;
           }
           var qprime = q.activate(this.state);
           var error = q.activate(prevstate);
-          var r = Math.sqrt(Math.pow((this.state[0]-this.state[4]),2)+Math.pow(this.state[2],2));
+          var r = Math.sqrt(Math.pow((this.state[1]-this.state[5]),2)+Math.pow(this.state[3],2));
           error[this.action] = r+gamma*Math.max.apply(null,qprime);
           q.propagate(alpha,error);
           if(this.experiences.length < expsize){

@@ -1,9 +1,9 @@
-var alpha = 0.05;
-var gamma = 0.8;
-var epsilon = 0.3;
+var alpha = 0.01;
+var gamma = 0.9;
+var epsilon = 0.2;
 var expsize = 1000;
 
-var q = new synaptic.Architect.Perceptron(10,30,27,3);
+var q = new synaptic.Architect.Perceptron(11,33,27,3);
 q.layers.output.list[0].squash = synaptic.Neuron.squash.IDENTITY
 q.layers.output.list[1].squash = synaptic.Neuron.squash.IDENTITY
 q.layers.output.list[2].squash = synaptic.Neuron.squash.IDENTITY
