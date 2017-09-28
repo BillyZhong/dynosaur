@@ -198,7 +198,7 @@ Population.prototype = {
         var p = enabledEdges[Math.floor(Math.random()*enabledEdges.length)];
 
         individual.edges[p].disabled = 1;
-        var lnode = 10;
+        var lnode = 11;
         for(var k in individual.nodes){
           if(parseInt(k) != lnode+1){
             break;
@@ -247,7 +247,7 @@ Population.prototype = {
   edgeMutation : function(individual){
     if(Math.random() < this.config.addEdgeMutationRate){
       var nonedges = new Set();
-      for(var i = 1; i < 11; i++){
+      for(var i = 1; i < 12; i++){
         for(var k in individual.nodes){
           nonedges.add(pi(i,parseInt(k)));
         }
@@ -353,7 +353,7 @@ Population.prototype = {
       n.push(genome.edges[k].source, genome.edges[k].dest);
     }
     n = new Set(n);
-    for(var i = 1; i < 11; i++){
+    for(var i = 1; i < 12; i++){
       n.delete(i);
     }
     for(let k of n){
@@ -369,20 +369,20 @@ Population.prototype = {
         genome.nodes[k] = individual1.nodes[k] || individual2.nodes[k];
       }
     }
-    if(genome.nodes["11"] == undefined){
-      if(Math.random() < this.config.crossoverRate){
-        genome.nodes["11"] = individual1.nodes["11"];
-      }
-      else{
-        genome.nodes["11"] = individual2.nodes["11"];
-      }
-    }
     if(genome.nodes["12"] == undefined){
       if(Math.random() < this.config.crossoverRate){
         genome.nodes["12"] = individual1.nodes["12"];
       }
       else{
         genome.nodes["12"] = individual2.nodes["12"];
+      }
+    }
+    if(genome.nodes["13"] == undefined){
+      if(Math.random() < this.config.crossoverRate){
+        genome.nodes["13"] = individual1.nodes["13"];
+      }
+      else{
+        genome.nodes["13"] = individual2.nodes["13"];
       }
     }
     return genome;
@@ -438,7 +438,7 @@ Population.prototype = {
 
 function Individual(){
   this.species = 0;
-  this.genome = {nodes:{11:Math.random()*2-1, 12:Math.random()*2-1},edges:{}};
+  this.genome = {nodes:{12:Math.random()*2-1, 13:Math.random()*2-1},edges:{}};
   this.fitness = 0;
   this.neurons;
 };
@@ -446,7 +446,7 @@ function Individual(){
 Individual.prototype = {
   generateNeuralNetwork : function(){
     var neurons = {};
-    for(var i = 1; i < 11; i++){
+    for(var i = 1; i < 12; i++){
       neurons[i] = new synaptic.Neuron();
       neurons[i].ID = i;
     }
@@ -471,16 +471,16 @@ Individual.prototype = {
 
   activateNeuralNetwork : function(inputs){
     for(var k in this.neurons){
-      if(parseInt(k) < 11){
+      if(parseInt(k) < 12){
         this.neurons[k].activate(inputs[parseInt(k)-1]);
       }
       else{
-        if(k != "11" || k != "12"){
+        if(k != "12" || k != "13"){
           this.neurons[k].activate();
         }
       }
     }
-    return [this.neurons[11].activate() < neat.p.config.outputThreshold[0] ? 0 : 1, this.neurons[12].activate() < neat.p.config.outputThreshold[1] ? 0 : 1];
+    return [this.neurons[12].activate() < neat.p.config.outputThreshold[0] ? 0 : 1, this.neurons[13].activate() < neat.p.config.outputThreshold[1] ? 0 : 1];
   }
 };
 
