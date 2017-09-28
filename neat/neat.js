@@ -18,7 +18,7 @@ var fitness = [];
 var generation = 1;
 var currentIndividual = 0;
 var innovations = [];
-var inputs = [0,0,0,0,0,0,0,0,0,0];
+var inputs = [0,0,0,0,0,0,0,0,0,0,0];
 var outputs = [0,0];
 var outputBinary = [0,0];
 var maxFitness = [];
@@ -54,14 +54,14 @@ var generateNeatPopulation = function(popSize){
 
 var generateNeuralNetwork = function(individual){
   var neurons = [];
-  for(var i = 0; i < 10; i++){
+  for(var i = 0; i < 11; i++){
     neurons.push(new synaptic.Neuron());
     neurons[i].ID = i+1;
   }
-  for(var i = 10; i < 10+population[individual].nodes.length; i++){
+  for(var i = 11; i < 11+population[individual].nodes.length; i++){
     neurons.push(new synaptic.Neuron());
     neurons[i].ID = i+1;
-    neurons[i].bias = population[individual].nodes[i-10];
+    neurons[i].bias = population[individual].nodes[i-11];
   }
   for(var i = 0; i < population[individual].edges.length; i++){
     if(!population[individual].edges[i].disabled){
@@ -75,14 +75,14 @@ var generateNeuralNetwork = function(individual){
 
 var activateNeuralNetworkDFS = function(neurons){
   var activated = [];
-  for(var i = 0; i < 10; i++){
+  for(var i = 0; i < 11; i++){
     neurons[i].activate(inputs[i]);
     activated.push(1);
   }
-  for(var i = 10; i < neurons.length-10; i++){
+  for(var i = 11; i < neurons.length; i++){
     activated.push(0);
   }
-  var nodestack = [11, 10];
+  var nodestack = [12, 11];
   while(nodestack.length != 0){
     if(activated[nodestack[nodestack.length-1]]){
       nodestack.pop();
@@ -94,10 +94,10 @@ var activateNeuralNetworkDFS = function(neurons){
     }
     if(activated[nodestack[nodestack.length-1]]){
       var tn = nodestack.pop();
-      if(tn == 10){
+      if(tn == 11){
         outputs[0] = neurons[tn].activate();
       }
-      else if(tn == 11){
+      else if(tn == 12){
         outputs[1] = neurons[tn].activate();
       }
       else{
@@ -114,14 +114,14 @@ var activateNeuralNetworkDFS = function(neurons){
 };
 
 var activateNeuralNetwork = function(neurons){
-  for(var i = 0; i < 10; i++){
+  for(var i = 0; i < 11; i++){
     neurons[i].activate(inputs[i]);
   }
-  for(var i = 12; i < neurons.length; i++){
+  for(var i = 13; i < neurons.length; i++){
     neurons[i].activate();
   }
-  outputs[0] = neurons[10].activate();
-  outputs[1] = neurons[11].activate();
+  outputs[0] = neurons[11].activate();
+  outputs[1] = neurons[12].activate();
 };
 
 var fitnessFunction = function(f, individual){
@@ -177,12 +177,12 @@ var nodeMutation = function(individual){
     population[individual].nodes.push(Math.random()*2-1);
     var innovp = -1;
     for(var i = 0; i < innovations.length; i++){
-      if(innovations[i].source == population[individual].edges[p].source && innovations[i].dest == 10+population[individual].nodes.length){
+      if(innovations[i].source == population[individual].edges[p].source && innovations[i].dest == 11+population[individual].nodes.length){
         innovp = i+1;
       }
     }
     if(innovp == -1){
-      innovations.push({source:population[individual].edges[p].source,dest:10+population[individual].nodes.length});
+      innovations.push({source:population[individual].edges[p].source,dest:11+population[individual].nodes.length});
       innovp = innovations.length;
     }
     var innovpos = population[individual].edges.length;
@@ -197,18 +197,18 @@ var nodeMutation = function(individual){
     population[individual].edges.splice(innovpos, 0, {
       innovation: innovp,
       source: population[individual].edges[p].source,
-      dest: 10+population[individual].nodes.length,
+      dest: 11+population[individual].nodes.length,
       weight: Math.random()*2-1,
       disabled: 0
     });
     innovp = -1;
     for(var i = 0; i < innovations.length; i++){
-      if(innovations[i].source == 10+population[individual].nodes.length && innovations[i].dest == population[individual].edges[p].dest){
+      if(innovations[i].source == 11+population[individual].nodes.length && innovations[i].dest == population[individual].edges[p].dest){
         innovp = i+1;
       }
     }
     if(innovp == -1){
-      innovations.push({source:10+population[individual].nodes.length,dest:population[individual].edges[p].dest});
+      innovations.push({source:11+population[individual].nodes.length,dest:population[individual].edges[p].dest});
       innovp = innovations.length;
     }
     innovpos = population[individual].edges.length;
@@ -222,7 +222,7 @@ var nodeMutation = function(individual){
     }
     population[individual].edges.splice(innovpos, 0, {
       innovation: innovp,
-      source: 10+population[individual].nodes.length,
+      source: 11+population[individual].nodes.length,
       dest: population[individual].edges[p].dest,
       weight: Math.random()*2-1,
       disabled: 0
@@ -232,7 +232,7 @@ var nodeMutation = function(individual){
 
 var dfs = function(graph, individual, dest, src){
   var visited = [];
-  for(var i = 0; i < 10+population[individual].nodes.length; i++){
+  for(var i = 0; i < 11+population[individual].nodes.length; i++){
     visited.push(0);
   }
   var nodestack = [dest];
@@ -254,9 +254,9 @@ var dfs = function(graph, individual, dest, src){
 var edgeMutation = function(individual){
   var innov;
   var adjhash = [];
-  for(var i = 0; i < population[individual].nodes.length + 10; i++){
+  for(var i = 0; i < population[individual].nodes.length + 11; i++){
     adjhash.push([]);
-    for(var j = 0; j < population[individual].nodes.length + 10; j++){
+    for(var j = 0; j < population[individual].nodes.length + 11; j++){
       adjhash[i].push(0);
     }
   }
@@ -264,15 +264,15 @@ var edgeMutation = function(individual){
     adjhash[population[individual].edges[i].source-1][population[individual].edges[i].dest-1] = 1;
   }
   var nonedges = [];
-  for(var i = 0; i < 10; i++){
-    for(var j = 10; j < population[individual].nodes.length + 10; j++){
+  for(var i = 0; i < 11; i++){
+    for(var j = 11; j < population[individual].nodes.length + 11; j++){
       if(!adjhash[i][j]){
         nonedges.push({source:i+1,dest:j+1});
       }
     }
   }
-  for(var i = 12; i < population[individual].nodes.length + 10; i++){
-    for(var j = 10; j < population[individual].nodes.length + 10; j++){
+  for(var i = 13; i < population[individual].nodes.length + 11; i++){
+    for(var j = 11; j < population[individual].nodes.length + 11; j++){
       if(!adjhash[i][j]){
         nonedges.push({source:i+1,dest:j+1});
       }
@@ -491,11 +491,11 @@ var graphCrossover = function(individual1, individual2){
     fitness[individual2] = tf;
   }
   genome.edges = synapsis(individual1, individual2);
-  var maxnode = 12;
+  var maxnode = 13;
   for(var i = 0; i < genome.edges.length; i++){
     maxnode = Math.max(maxnode, genome.edges[i].source, genome.edges[i].dest);
   }
-  for(var i = 0; i < maxnode-10; i++){
+  for(var i = 0; i < maxnode-11; i++){
     if(i >= population[individual2].nodes.length){
       genome.nodes.push(population[individual1].nodes[i]);
     }

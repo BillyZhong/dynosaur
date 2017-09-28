@@ -594,11 +594,11 @@ Runner.prototype = {
           if(this.bot){
             var binputs = [0,0,0,0,0,0,0,0,0,0,0];
             binputs[0] = this.currentSpeed;
-            binputs[1] = -this.tRex.yPos + 93;
-            binputs[2] = -this.tRex.yPos+93+(this.tRex.ducking?25:47);
+            binputs[1] = -this.tRex.yPos+93+(this.tRex.ducking?25:47);
+            binputs[2] = -this.tRex.yPos + 93;
             try {
-              binputs[3] = this.horizon.obstacles[0].xPos + 1;
-              binputs[4] = this.horizon.obstacles[0].xPos + this.horizon.obstacles[0].typeConfig.width * this.horizon.obstacles[0].size - 1;
+              binputs[3] = this.horizon.obstacles[0].xPos + 1 - 60;
+              binputs[4] = this.horizon.obstacles[0].xPos + this.horizon.obstacles[0].typeConfig.width * this.horizon.obstacles[0].size - 1 - 60;
               binputs[5] = -(this.horizon.obstacles[0].yPos + 1) + 139;
               binputs[6] = -(this.horizon.obstacles[0].yPos + this.horizon.obstacles[0].typeConfig.height - 1) + 139;
             }
@@ -609,8 +609,8 @@ Runner.prototype = {
               binputs[6] = 999;
             }
             try {
-              binputs[7] = this.horizon.obstacles[1].xPos + 1;
-              binputs[8] = this.horizon.obstacles[1].xPos + this.horizon.obstacles[1].typeConfig.width * this.horizon.obstacles[0].size - 1;
+              binputs[7] = this.horizon.obstacles[1].xPos + 1 - 60;
+              binputs[8] = this.horizon.obstacles[1].xPos + this.horizon.obstacles[1].typeConfig.width * this.horizon.obstacles[0].size - 1 - 60;
               binputs[9] = -(this.horizon.obstacles[1].yPos + 1) + 139;
               binputs[10] = -(this.horizon.obstacles[1].yPos + this.horizon.obstacles[1].typeConfig.height - 1) + 139;
             }
@@ -637,11 +637,11 @@ Runner.prototype = {
           }
           else{
             inputs[0] = this.currentSpeed;
-            inputs[1] = -this.tRex.yPos + 93;
-            inputs[2] = -this.tRex.yPos+93+(this.tRex.ducking?25:47);
+            inputs[1] = -this.tRex.yPos+93+(this.tRex.ducking?25:47);
+            inputs[2] = -this.tRex.yPos + 93;
             try {
-              inputs[3] = this.horizon.obstacles[0].xPos + 1;
-              inputs[4] = this.horizon.obstacles[0].xPos + this.horizon.obstacles[0].typeConfig.width * this.horizon.obstacles[0].size - 1;
+              inputs[3] = this.horizon.obstacles[0].xPos + 1 - 60;
+              inputs[4] = this.horizon.obstacles[0].xPos + this.horizon.obstacles[0].typeConfig.width * this.horizon.obstacles[0].size - 1 - 60;
               inputs[5] = -(this.horizon.obstacles[0].yPos + 1) + 139;
               inputs[6] = -(this.horizon.obstacles[0].yPos + this.horizon.obstacles[0].typeConfig.height - 1) + 139;
             }
@@ -652,8 +652,8 @@ Runner.prototype = {
               inputs[6] = 999;
             }
             try {
-              inputs[7] = this.horizon.obstacles[1].xPos + 1;
-              inputs[8] = this.horizon.obstacles[1].xPos + this.horizon.obstacles[1].typeConfig.width * this.horizon.obstacles[0].size - 1;
+              inputs[7] = this.horizon.obstacles[1].xPos + 1 - 60;
+              inputs[8] = this.horizon.obstacles[1].xPos + this.horizon.obstacles[1].typeConfig.width * this.horizon.obstacles[0].size - 1 - 60;
               inputs[9] = -(this.horizon.obstacles[1].yPos + 1) + 139;
               inputs[10] = -(this.horizon.obstacles[1].yPos + this.horizon.obstacles[1].typeConfig.height - 1) + 139;
             }

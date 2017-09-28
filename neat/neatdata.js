@@ -85,49 +85,51 @@ var updateData = function(){
   if(!r.crashed){
     document.getElementById('fitnessScore').innerHTML = isNaN(parseInt(r.distanceMeter.digits[0]+r.distanceMeter.digits[1]+r.distanceMeter.digits[2]+r.distanceMeter.digits[3]+r.distanceMeter.digits[4])) ? 0 : parseInt(r.distanceMeter.digits[0]+r.distanceMeter.digits[1]+r.distanceMeter.digits[2]+r.distanceMeter.digits[3]+r.distanceMeter.digits[4]);
     document.getElementById('obstacleNum').innerHTML = r.horizon.obstacleNum;
-    document.getElementById('tRexHeight').innerText = -r.tRex.yPos + 93;
-    inputs[0] = -r.tRex.yPos + 93;
-    document.getElementById('tRexSpeed').innerText = r.currentSpeed;
-    inputs[1] = r.currentSpeed;
+    inputs[0] = r.currentSpeed;
+    document.getElementById('tRexSpeed').innerText = inputs[0];
+    inputs[1] = -r.tRex.yPos+93+(r.tRex.ducking?25:47);
+    document.getElementById('tRexTop').innerText = inputs[1];
+    inputs[2] = -r.tRex.yPos + 93;
+    document.getElementById('tRexBottom').innerText = inputs[2];
     try {
-      document.getElementById('firstObsLeft').innerText = r.horizon.obstacles[0].xPos + 1;
-      inputs[2] = r.horizon.obstacles[0].xPos + 1;
-      document.getElementById('firstObsRight').innerText = r.horizon.obstacles[0].xPos + r.horizon.obstacles[0].typeConfig.width * r.horizon.obstacles[0].size - 1;
-      inputs[3] = r.horizon.obstacles[0].xPos + r.horizon.obstacles[0].typeConfig.width * r.horizon.obstacles[0].size - 1;
-      document.getElementById('firstObsTop').innerText = -(r.horizon.obstacles[0].yPos + 1) + 139;
-      inputs[4] = -(r.horizon.obstacles[0].yPos + 1) + 139;
-      document.getElementById('firstObsBottom').innerText = -(r.horizon.obstacles[0].yPos + r.horizon.obstacles[0].typeConfig.height - 1) + 139;
-      inputs[5] = -(r.horizon.obstacles[0].yPos + r.horizon.obstacles[0].typeConfig.height - 1) + 139;
+      inputs[3] = r.horizon.obstacles[0].xPos + 1 - 60;
+      document.getElementById('firstObsLeft').innerText = inputs[3];
+      inputs[4] = r.horizon.obstacles[0].xPos + r.horizon.obstacles[0].typeConfig.width * r.horizon.obstacles[0].size - 1 - 60;
+      document.getElementById('firstObsRight').innerText = inputs[4];
+      inputs[5] = -(r.horizon.obstacles[0].yPos + 1) + 139;
+      document.getElementById('firstObsTop').innerText = inputs[5];
+      inputs[6] = -(r.horizon.obstacles[0].yPos + r.horizon.obstacles[0].typeConfig.height - 1) + 139;
+      document.getElementById('firstObsBottom').innerText = inputs[6];
     }
     catch (e) {
-      document.getElementById('firstObsLeft').innerText = 999;
-      inputs[2] = 999;
-      document.getElementById('firstObsRight').innerText = 999;
       inputs[3] = 999;
-      document.getElementById('firstObsTop').innerText = 999;
+      document.getElementById('firstObsLeft').innerText = inputs[3];
       inputs[4] = 999;
-      document.getElementById('firstObsBottom').innerText = 999;
+      document.getElementById('firstObsRight').innerText = inputs[4];
       inputs[5] = 999;
+      document.getElementById('firstObsTop').innerText = inputs[5];
+      inputs[6] = 999;
+      document.getElementById('firstObsBottom').innerText = inputs[6];
     }
     try {
-      document.getElementById('secondObsLeft').innerText = r.horizon.obstacles[1].xPos + 1;
-      inputs[6] = r.horizon.obstacles[1].xPos + 1;
-      document.getElementById('secondObsRight').innerText = r.horizon.obstacles[1].xPos + r.horizon.obstacles[1].typeConfig.width * r.horizon.obstacles[0].size - 1;
-      inputs[7] = r.horizon.obstacles[1].xPos + r.horizon.obstacles[1].typeConfig.width * r.horizon.obstacles[0].size - 1;
-      document.getElementById('secondObsTop').innerText = -(r.horizon.obstacles[1].yPos + 1) + 139;
-      inputs[8] = -(r.horizon.obstacles[1].yPos + 1) + 139;
-      document.getElementById('secondObsBottom').innerText = -(r.horizon.obstacles[1].yPos + r.horizon.obstacles[1].typeConfig.height - 1) + 139;
-      inputs[9] = -(r.horizon.obstacles[1].yPos + r.horizon.obstacles[1].typeConfig.height - 1) + 139;
+      inputs[7] = r.horizon.obstacles[1].xPos + 1 - 60;
+      document.getElementById('secondObsLeft').innerText = inputs[7];
+      inputs[8] = r.horizon.obstacles[1].xPos + r.horizon.obstacles[1].typeConfig.width * r.horizon.obstacles[1].size - 1 - 60;
+      document.getElementById('secondObsRight').innerText = inputs[8];
+      inputs[9] = -(r.horizon.obstacles[1].yPos + 1) + 139;
+      document.getElementById('secondObsTop').innerText = inputs[9];
+      inputs[10] = -(r.horizon.obstacles[1].yPos + r.horizon.obstacles[1].typeConfig.height - 1) + 139;
+      document.getElementById('secondObsBottom').innerText = inputs[10];
     }
     catch (e) {
-      document.getElementById('secondObsLeft').innerText = 999;
-      inputs[6] = 999;
-      document.getElementById('secondObsRight').innerText = 999;
       inputs[7] = 999;
-      document.getElementById('secondObsTop').innerText = 999;
+      document.getElementById('secondObsLeft').innerText = inputs[7];
       inputs[8] = 999;
-      document.getElementById('secondObsBottom').innerText = 999;
+      document.getElementById('secondObsRight').innerText = inputs[8];
       inputs[9] = 999;
+      document.getElementById('secondObsTop').innerText = inputs[9];
+      inputs[10] = 999;
+      document.getElementById('secondObsBottom').innerText = inputs[10];
     }
     if(outputBinary[0] && outputBinary[1]){
       down(1);
@@ -168,22 +170,22 @@ var drawNeatNeuralNet = function(individual){
     edges: []
   };
 
-  for(var i = 0; i < 10; i++){
+  for(var i = 0; i < 11; i++){
     g.nodes.push({
       id: '' + (i+1),
       label: '' + (i+1),
-      x: (i-4.5)*10,
+      x: (i-5)*10,
       y: -50,
       size: 0.5,
       color: '#00BCD4'
     });
   }
 
-  for(var i = 10; i < 12; i++){
+  for(var i = 11; i < 13; i++){
     g.nodes.push({
       id: '' + (i+1),
       label: '' + (i+1),
-      x: (i-10.5)*50,
+      x: (i-11.5)*50,
       y: 50,
       size: 0.5,
       color: '#00BCD4'
@@ -192,8 +194,8 @@ var drawNeatNeuralNet = function(individual){
 
   for(var i = 2; i < population[individual].nodes.length; i++){
     g.nodes.push({
-      id: '' + (i+11),
-      label: '' + (i+11),
+      id: '' + (i+12),
+      label: '' + (i+12),
       x: Math.random()*80-40,
       y: Math.random()*80-40,
       size: 0.5,

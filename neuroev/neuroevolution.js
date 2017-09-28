@@ -9,6 +9,7 @@ var outputBinary = [0,0];
 var maxFitness = [];
 var crossoverRate = 0.5;
 var mutationRate = 0.5;
+var sim = 0;
 
 var generatePopulation = function(popSize, hiddenNeurons){
   population = [];

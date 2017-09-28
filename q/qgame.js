@@ -600,8 +600,8 @@ Runner.prototype = {
         if(this.frame%3 == 0){
           var prevstate = state.slice();
           state[0] = this.currentSpeed;
-          state[1] = -this.tRex.yPos + 93;
-          state[2] = -this.tRex.yPos+93+(this.tRex.ducking?25:47);
+          state[1] = -this.tRex.yPos+93+(this.tRex.ducking?25:47);
+          state[2] = -this.tRex.yPos + 93;
           try {
             state[3] = this.horizon.obstacles[0].xPos + 1 - 60;
             state[4] = this.horizon.obstacles[0].xPos + this.horizon.obstacles[0].typeConfig.width * this.horizon.obstacles[0].size - 1 - 60;
