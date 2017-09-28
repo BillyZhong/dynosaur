@@ -588,8 +588,16 @@ Runner.prototype = {
 
       if (!collision) {
         this.frame++;
-        this.frame%=3;
-        if(this.frame==0){
+        this.frame%=30;
+        if(this.frame == 0){
+          var e = Math.floor(Math.random()*experiences.length);
+          var qprime = q.activate(experiences[e][3]);
+          var error = q.activate(experiences[e][0]);
+          var r = experiences[e][2];
+          error[experiences[e][1]] = r+gamma*Math.max.apply(null,qprime);
+          q.propagate(alpha,error);
+        }
+        if(this.frame%3 == 0){
           var prevstate = state.slice();
           state[0] = -this.tRex.yPos + 93;
           state[1] = this.currentSpeed;
@@ -619,8 +627,15 @@ Runner.prototype = {
           }
           var qprime = q.activate(state);
           var error = q.activate(prevstate);
-          error[action] = Math.sqrt(Math.pow((state[0]-state[4]),2)+Math.pow(state[2],2))+gamma*Math.max.apply(null,qprime);
+          var r = Math.sqrt(Math.pow((state[0]-state[4]),2)+Math.pow(state[2],2));
+          error[action] = r+gamma*Math.max.apply(null,qprime);
           q.propagate(alpha,error);
+          if(experiences.length < expsize){
+            experiences.push([prevstate.slice(),action,r,state.slice()])
+          }
+          else{
+            experiences[Math.floor(Math.random()*expsize)] = [prevstate.slice(),action,r,state.slice()];
+          }
           var qf = q.activate(state);
           console.log(qf);
           if(Math.random() < epsilon){

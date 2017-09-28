@@ -16,6 +16,7 @@ function Runner(outerContainerId, qId, opt_config) {
 
   this.state = [0,0,0,0,0,0,0,0,0,0];
   this.action = 0;
+  this.experiences = [];
 
   this.outerContainerEl = outerContainerId;
   this.qId = qId;
@@ -592,8 +593,16 @@ Runner.prototype = {
 
       if (!collision) {
         this.frame++;
-        this.frame%=3;
-        if(this.frame==0){
+        this.frame%=30;
+        if(this.frame == 0){
+          var e = Math.floor(Math.random()*this.experiences.length);
+          var qprime = q.activate(this.experiences[e][3]);
+          var error = q.activate(this.experiences[e][0]);
+          var r = this.experiences[e][2];
+          error[this.experiences[e][1]] = r+gamma*Math.max.apply(null,qprime);
+          q.propagate(alpha,error);
+        }
+        if(this.frame%3 == 0){
           var prevstate = this.state.slice();
           this.state[0] = -this.tRex.yPos + 93;
           this.state[1] = this.currentSpeed;
@@ -623,8 +632,15 @@ Runner.prototype = {
           }
           var qprime = q.activate(this.state);
           var error = q.activate(prevstate);
-          error[this.action] = Math.sqrt(Math.pow((this.state[0]-this.state[4]),2)+Math.pow(this.state[2],2))+gamma*Math.max.apply(null,qprime);
+          var r = Math.sqrt(Math.pow((this.state[0]-this.state[4]),2)+Math.pow(this.state[2],2));
+          error[this.action] = r+gamma*Math.max.apply(null,qprime);
           q.propagate(alpha,error);
+          if(this.experiences.length < expsize){
+            this.experiences.push([prevstate.slice(),this.action,r,this.state.slice()])
+          }
+          else{
+            this.experiences[Math.floor(Math.random()*expsize)] = [prevstate.slice(),this.action,r,this.state.slice()];
+          }
           var qf = q.activate(this.state);
           if(Math.random() < epsilon){
             this.action = Math.floor(Math.random()*3);
