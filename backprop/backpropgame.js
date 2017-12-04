@@ -620,13 +620,13 @@ Runner.prototype = {
               binputs[9] = 999;
               binputs[10] = 999;
             }
-            var botOutputs = net.activate(binputs);
-            console.log(botOutputs);
-            if(botOutputs[1] > 0.5){
+            var boutputs = net.activate(binputs);
+            update(binputs,boutputs)
+            if(boutputs[1] > 0.5){
               this.down(1);
               this.up(0);
             }
-            else if(botOutputs[0] > 0.5){
+            else if(boutputs[0] > 0.5){
               this.down(0);
               this.up(1);
             }
