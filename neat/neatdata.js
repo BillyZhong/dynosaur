@@ -141,8 +141,8 @@ var drawNeatNeuralNet = function(individual){
     g.nodes.push({
       id: '' + i,
       label: '' + i,
-      x: Math.random()*80-40,
-      y: Math.random()*80-40,
+      x: i == 12 | i == 13 ? (i-12.5)*50 : Math.random()*80-40,
+      y: i == 12 | i == 13 ? 50 : Math.random()*80-40,
       size: 0.5,
       color: '#00BCD4'
     });
