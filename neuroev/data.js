@@ -2,7 +2,7 @@ var r = new Runner('.interstitial-wrapper');
 var naivebot = 0;
 var downPressed = 0;
 var fitnessChart;
-var maxFitnessChart;
+var fitnessGraph;
 var snet;
 var evolution;
 
@@ -306,6 +306,7 @@ var newPop = function(gen){
   currentIndividual = 0;
   document.getElementById('indNum').innerHTML = currentIndividual + 1;
   maxFitness = [];
+  fitnessArr = [];
   if(gen){
     generatePopulation(32,[12,12,12]);
   }
@@ -313,7 +314,7 @@ var newPop = function(gen){
   for(var i = 0; i < population.length; i++){
     labels.push("Individual " + (i+1));
   }
-  var fitnessCtx = document.getElementById('fitnessChart').getContext('2d');
+  var fitnessChartCtx = document.getElementById('fitnessChart').getContext('2d');
   var data = {
       labels: labels,
       datasets: [
@@ -325,17 +326,17 @@ var newPop = function(gen){
     fitnessChart.destroy();
   }
   catch (e){}
-  fitnessChart = new Chart(fitnessCtx, {
+  fitnessChart = new Chart(fitnessChartCtx, {
       type: 'doughnut',
       data: data,
       options: {legend: {display:false}, layout:{padding:10}}
   });
-  var maxFitnessCtx = document.getElementById('maxFitnessChart').getContext('2d');
+  var fitnessGraphCtx = document.getElementById('fitnessGraph').getContext('2d');
   var data = {
       labels: [],
       datasets: [
           {
-              label: "Maximum Fitness",
+              label: "Fitness",
               fill: false,
               lineTension: 0.1,
               backgroundColor: "rgba(0,188,212,0.4)",
@@ -353,16 +354,16 @@ var newPop = function(gen){
               pointHoverBorderWidth: 2,
               pointRadius: 1,
               pointHitRadius: 10,
-              data: maxFitness,
+              data: [],
               spanGaps: false,
           }
       ]
   };
   try {
-    maxFitnessChart.destroy();
+    fitnessGraph.destroy();
   }
   catch (e){}
-  maxFitnessChart = new Chart(maxFitnessCtx, {
+  fitnessGraph = new Chart(fitnessGraphCtx, {
       type: 'line',
       data: data,
   	  options: {legend: {display:false}, layout:{padding:20}}
@@ -379,6 +380,9 @@ var simulateNext = function(){
   currentIndividual++;
   fitnessChart.data.datasets[0].data = fitness;
   fitnessChart.update();
+  fitnessGraph.data.labels = Array(fitnessArr.length).fill().map((e,i)=>i+1);;
+  fitnessGraph.data.datasets[0].data = fitnessArr.slice();
+  fitnessGraph.update();
 };
 
 var evolvePop = function(){
@@ -389,8 +393,6 @@ var evolvePop = function(){
   for(var i = 0; i < population.length; i++){
     mutation(i);
   }
-  maxFitnessChart.data.labels.push(generation);
-  maxFitnessChart.update();
   generation++;
   document.getElementById('genNum').innerHTML = generation;
 };

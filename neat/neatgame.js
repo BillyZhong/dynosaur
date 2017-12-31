@@ -11,11 +11,10 @@
  * @constructor
  * @export
  */
-function Runner(outerContainerId, neatId, opt_config) {
+function Runner(outerContainerId, opt_config) {
   Runner.instance_ = this;
 
   this.outerContainerEl = outerContainerId;
-  this.neatId = neatId;
   this.containerEl = null;
   this.snackbarEl = null;
   // this.detailsButton = this.outerContainerEl.querySelector('#details-button');
@@ -533,7 +532,7 @@ Runner.prototype = {
     this.tRex.playingIntro = false;
     this.containerEl.style.webkitAnimation = '';
     this.playCount++;
-
+    document.getElementById('collision-canvas').getContext('2d').clearRect(0,0,600,150);
     // Handle tabbing off the page. Pause the current game.
     document.addEventListener(Runner.events.VISIBILITY,
           this.onVisibilityChange.bind(this));
@@ -585,46 +584,48 @@ Runner.prototype = {
 
       // Check for collisions.
       var collision = hasObstacles &&
-          checkForCollision(this.horizon.obstacles[0], this.tRex, this.horizon.obstacles);
+          checkForCollision(this.horizon.obstacles[0], this.tRex, document.getElementById('collision-canvas').getContext('2d'), this.horizon.obstacles);
 
       if (!collision) {
         this.frame++;
         this.frame%=3;
-        if(neat.sim > 0){
-          if(this.frame==0){
-            var inputs = [0,0,0,0,0,0,0,0,0,0];
-            inputs[0] = -this.tRex.yPos + 93;
-            inputs[1] = this.currentSpeed;
-            try {
-              inputs[2] = this.horizon.obstacles[0].xPos + 1;
-              inputs[3] = this.horizon.obstacles[0].xPos + this.horizon.obstacles[0].typeConfig.width * this.horizon.obstacles[0].size - 1;
-              inputs[4] = -(this.horizon.obstacles[0].yPos + 1) + 139;
-              inputs[5] = -(this.horizon.obstacles[0].yPos + this.horizon.obstacles[0].typeConfig.height - 1) + 139;
-            }
-            catch (e) {
-              inputs[2] = 999;
-              inputs[3] = 999;
-              inputs[4] = 999;
-              inputs[5] = 999;
-            }
-            try {
-              inputs[6] = this.horizon.obstacles[1].xPos + 1;
-              inputs[7] = this.horizon.obstacles[1].xPos + this.horizon.obstacles[1].typeConfig.width * this.horizon.obstacles[0].size - 1;
-              inputs[8] = -(this.horizon.obstacles[1].yPos + 1) + 139;
-              inputs[9] = -(this.horizon.obstacles[1].yPos + this.horizon.obstacles[1].typeConfig.height - 1) + 139;
-            }
-            catch (e) {
-              inputs[6] = 999;
-              inputs[7] = 999;
-              inputs[8] = 999;
-              inputs[9] = 999;
-            }
-            var outputBinary = neat.p.population[this.neatId].activateNeuralNetwork(inputs);
-            if(outputBinary[1]){
+        if(this.frame==0){
+          var inputs = [0,0,0,0,0,0,0,0,0,0,0];
+          inputs[0] = this.currentSpeed;
+          inputs[1] = -this.tRex.yPos+93+(this.tRex.ducking?25:47);
+          inputs[2] = -this.tRex.yPos + 93;
+          try {
+            inputs[3] = this.horizon.obstacles[0].xPos + 1 - 60;
+            inputs[4] = this.horizon.obstacles[0].xPos + this.horizon.obstacles[0].typeConfig.width * this.horizon.obstacles[0].size - 1 - 60;
+            inputs[5] = -(this.horizon.obstacles[0].yPos + 1) + 139;
+            inputs[6] = -(this.horizon.obstacles[0].yPos + this.horizon.obstacles[0].typeConfig.height - 1) + 139;
+          }
+          catch (e) {
+            inputs[3] = 999;
+            inputs[4] = 999;
+            inputs[5] = 999;
+            inputs[6] = 999;
+          }
+          try {
+            inputs[7] = this.horizon.obstacles[1].xPos + 1 - 60;
+            inputs[8] = this.horizon.obstacles[1].xPos + this.horizon.obstacles[1].typeConfig.width * this.horizon.obstacles[0].size - 1 - 60;
+            inputs[9] = -(this.horizon.obstacles[1].yPos + 1) + 139;
+            inputs[10] = -(this.horizon.obstacles[1].yPos + this.horizon.obstacles[1].typeConfig.height - 1) + 139;
+          }
+          catch (e) {
+            inputs[7] = 999;
+            inputs[8] = 999;
+            inputs[9] = 999;
+            inputs[10] = 999;
+          }
+          var outputs = [0,0];
+          if(neat.sim){
+            var outputs = neat.p.population[neat.c].activateNeuralNetwork(inputs);
+            if(outputs[1] > neat.p.config.outputThreshold[1]){
               this.down(1);
               this.up(0);
             }
-            else if(outputBinary[0]){
+            else if(outputs[0] > neat.p.config.outputThreshold[0]){
               this.down(0);
               this.up(1);
             }
@@ -633,6 +634,7 @@ Runner.prototype = {
               this.up(0);
             }
           }
+          update(inputs,outputs)
         }
         this.distanceRan += this.currentSpeed * deltaTime / this.msPerFrame;
 
@@ -659,8 +661,11 @@ Runner.prototype = {
       this.tRex.xPos = 25;
       this.upPressed = 0;
       this.downPressed = 0;
-      neat.p.population[this.neatId].fitnessFunction(isNaN(parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4])) ? 0 : parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4]));
-      neat.sim--;
+      if(neat.sim){
+        neat.p.population[neat.c].fitnessFunction(isNaN(parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4])) ? 0 : parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4]));
+        neat.p.fitness.push(neat.p.population[neat.c].fitness);
+      }
+      neat.sim = 0;
     }
   },
 
@@ -769,7 +774,7 @@ Runner.prototype = {
       if (!this.crashed && (Runner.keycodes.JUMP[e.keyCode] ||
            e.type == Runner.events.TOUCHSTART || e.type == Runner.events.GAMEPADCONNECTED)) {
         if (!this.activated) {
-          //this.loadSounds();
+          this.loadSounds();
           this.activated = true;
           // errorPageController.trackEasterEgg();
         }
@@ -922,6 +927,7 @@ Runner.prototype = {
       this.time = getTimeStamp();
       this.containerEl.classList.remove(Runner.classes.CRASHED);
       this.clearCanvas();
+      document.getElementById('collision-canvas').getContext('2d').clearRect(0,0,600,150);
       this.distanceMeter.reset(this.highestScore);
       this.horizon.reset();
       this.tRex.reset();
@@ -1200,7 +1206,7 @@ function checkForCollision(obstacle, tRex, opt_canvasCtx, obstacles) {
 
   // Debug outer box
   if (opt_canvasCtx) {
-    //drawAllCollisionBoxes(opt_canvasCtx, tRexBox, obstacles);
+    drawAllCollisionBoxes(opt_canvasCtx, tRexBox, obstacles);
   }
 
   // Simple outer bounds check.
@@ -1221,7 +1227,7 @@ function checkForCollision(obstacle, tRex, opt_canvasCtx, obstacles) {
 
         // Draw boxes for debug.
         if (opt_canvasCtx) {
-          //drawCollisionBoxes(opt_canvasCtx, adjTrexBox, adjObstacleBox);
+          drawCollisionBoxes(opt_canvasCtx, adjTrexBox, adjObstacleBox);
         }
 
         if (crashed) {
@@ -1260,6 +1266,8 @@ function drawCollisionBoxes(canvasCtx, tRexBox, obstacleBox) {
   canvasCtx.strokeStyle = '#0f0';
   canvasCtx.strokeRect(obstacleBox.x, obstacleBox.y,
       obstacleBox.width, obstacleBox.height);
+  canvasCtx.strokeStyle = '#00f'
+  canvasCtx.strokeRect(tRexBox.x+44, 139, 2, tRexBox.y-93);
   canvasCtx.restore();
 };
 
@@ -1271,8 +1279,8 @@ function drawAllCollisionBoxes(canvasCtx, tRexBox, obstacles) {
   canvasCtx.clearRect(0,0,600,150);
   canvasCtx.strokeStyle = '#f00';
   canvasCtx.strokeRect(tRexBox.x, tRexBox.y, tRexBox.width, tRexBox.height);
-  canvasCtx.strokeStyle = '#0f0';
   for(var i = 0; i < obstacles.length; i++){
+    canvasCtx.strokeStyle = '#0f0';
     var obstacleBox = new CollisionBox(
         obstacles[i].xPos + 1,
         obstacles[i].yPos + 1,
@@ -1280,7 +1288,11 @@ function drawAllCollisionBoxes(canvasCtx, tRexBox, obstacles) {
         obstacles[i].typeConfig.height - 2);
     canvasCtx.strokeRect(obstacleBox.x, obstacleBox.y,
         obstacleBox.width, obstacleBox.height);
+    canvasCtx.strokeStyle = '#00f';
+    canvasCtx.strokeRect(tRexBox.x+44, 139+5*i,
+        obstacleBox.x-tRexBox.x-44, 2);
   }
+  canvasCtx.strokeRect(tRexBox.x+44, 139, 2, tRexBox.y-93);
   canvasCtx.restore();
 };
 

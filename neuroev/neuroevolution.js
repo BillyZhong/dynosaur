@@ -1,6 +1,7 @@
 var z = new Ziggurat();
 var population = [];
 var fitness = [];
+var fitnessArr = [];
 var generation = 1;
 var currentIndividual = 0;
 var inputs = [0,0,0,0,0,0,0,0,0,0];
@@ -14,6 +15,7 @@ var sim = 0;
 var generatePopulation = function(popSize, hiddenNeurons){
   population = [];
   fitness = [];
+  totalFitness = [];
   maxFitness = [];
   generation = 1;
   currentIndividual = 0;
@@ -64,6 +66,7 @@ var simulateIndividual = function(individual, output1Threshold, output2Threshold
   var sim = setInterval(function(){
     if(r.crashed){
       fitness[individual] = parseInt(r.distanceMeter.digits[0]+r.distanceMeter.digits[1]+r.distanceMeter.digits[2]+r.distanceMeter.digits[3]+r.distanceMeter.digits[4]);
+      fitnessArr.push(fitness[individual]);
       clearInterval(sim);
     }
     outputs = population[individual].activate(inputs);
