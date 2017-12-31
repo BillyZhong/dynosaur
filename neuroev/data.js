@@ -336,7 +336,7 @@ var newPop = function(gen){
       labels: [],
       datasets: [
           {
-              label: "Fitness",
+              label: "Score",
               fill: false,
               lineTension: 0.1,
               backgroundColor: "rgba(0,188,212,0.4)",
