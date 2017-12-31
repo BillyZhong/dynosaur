@@ -126,32 +126,21 @@ var drawNeatNeuralNet = function(individual){
     edges: []
   };
 
-  for(var i = 0; i < 11; i++){
+  for(var i = 1; i < 12; i++){
     g.nodes.push({
-      id: '' + (i+1),
-      label: '' + (i+1),
-      x: (i-5)*10,
+      id: '' + i,
+      label: '' + i,
+      x: (i-6)*10,
       y: -50,
       size: 0.5,
       color: '#00BCD4'
     });
   }
 
-  for(var i = 11; i < 13; i++){
+  for(var i in neat.p.population[individual].genome.nodes){
     g.nodes.push({
-      id: '' + (i+1),
-      label: '' + (i+1),
-      x: (i-11.5)*50,
-      y: 50,
-      size: 0.5,
-      color: '#00BCD4'
-    });
-  }
-
-  for(var i = 2; i < neat.p.population[individual].genome.nodes.length; i++){
-    g.nodes.push({
-      id: '' + (i+12),
-      label: '' + (i+12),
+      id: '' + i,
+      label: '' + i,
       x: Math.random()*80-40,
       y: Math.random()*80-40,
       size: 0.5,
@@ -159,11 +148,11 @@ var drawNeatNeuralNet = function(individual){
     });
   }
 
-  for(var i = 0; i < neat.p.population[individual].genome.edges.length; i++){
+  for(var i in neat.p.population[individual].genome.edges){
     if(!neat.p.population[individual].genome.edges[i].disabled){
       g.edges.push({
-        id: '' + neat.p.population[individual].genome.edges[i].innovation,
-        label: '' + neat.p.population[individual].genome.edges[i].innovation,
+        id: '' + i,
+        label: '' + i,
         source: neat.p.population[individual].genome.edges[i].source,
         target: neat.p.population[individual].genome.edges[i].dest,
         size: Math.abs(neat.p.population[individual].genome.edges[i].weight),
