@@ -2,7 +2,7 @@ var r = new Runner('.interstitial-wrapper');
 var naivebot = 0;
 var downPressed = 0;
 var fitnessChart;
-var fitnessGraph;
+var scoreChart;
 var snet;
 var evolution;
 
@@ -306,7 +306,7 @@ var newPop = function(gen){
   currentIndividual = 0;
   document.getElementById('indNum').innerHTML = currentIndividual + 1;
   maxFitness = [];
-  fitnessArr = [];
+  scores = [];
   if(gen){
     generatePopulation(32,[12,12,12]);
   }
@@ -331,7 +331,7 @@ var newPop = function(gen){
       data: data,
       options: {legend: {display:false}, layout:{padding:10}}
   });
-  var fitnessGraphCtx = document.getElementById('fitnessGraph').getContext('2d');
+  var scoreChartCtx = document.getElementById('scoreChart').getContext('2d');
   var data = {
       labels: [],
       datasets: [
@@ -360,10 +360,10 @@ var newPop = function(gen){
       ]
   };
   try {
-    fitnessGraph.destroy();
+    scoreChart.destroy();
   }
   catch (e){}
-  fitnessGraph = new Chart(fitnessGraphCtx, {
+  scoreChart = new Chart(scoreChartCtx, {
       type: 'line',
       data: data,
   	  options: {legend: {display:false}, layout:{padding:20}}
@@ -380,9 +380,9 @@ var simulateNext = function(){
   currentIndividual++;
   fitnessChart.data.datasets[0].data = fitness;
   fitnessChart.update();
-  fitnessGraph.data.labels = Array(fitnessArr.length).fill().map((e,i)=>i+1);;
-  fitnessGraph.data.datasets[0].data = fitnessArr.slice();
-  fitnessGraph.update();
+  scoreChart.data.labels = Array(scores.length).fill().map((e,i)=>i+1);;
+  scoreChart.data.datasets[0].data = scores.slice();
+  scoreChart.update();
 };
 
 var evolvePop = function(){

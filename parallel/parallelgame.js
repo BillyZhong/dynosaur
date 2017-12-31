@@ -661,7 +661,7 @@ Runner.prototype = {
       this.upPressed = 0;
       this.downPressed = 0;
       neat.p.population[this.neatId].fitnessFunction(isNaN(parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4])) ? 0 : parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4]));
-      neat.p.fitness.push(neat.p.population[this.neatId].fitness);
+      neat.p.scores.push(isNaN(parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4])) ? 0 : parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4]));
       neat.sim--;
     }
   },

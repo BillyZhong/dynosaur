@@ -55,7 +55,7 @@ NEAT.prototype = {
     for(var i = 0; i < this.n; i++){
       g.push(this.p.population[i].genome);
     }
-    var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({population: g, innovations: this.p.innovations, generation: this.p.generation, fitness: this.p.fitness}));
+    var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({population: g, innovations: this.p.innovations, generation: this.p.generation, scores: this.p.scores}));
     var ae = document.createElement('a');
     ae.href = 'data:' + data;
     ae.download = 'population.json';
@@ -80,7 +80,7 @@ NEAT.prototype = {
         }
         thisNeat.p.innovations = res.innovations;
         thisNeat.p.generation = res.generation;
-        thisNeat.p.fitness = res.fitness;
+        thisNeat.p.scores = res.scores;
       }
       fr.readAsText(files.item(0));
     }
@@ -104,7 +104,7 @@ function Population(popsize){
   this.population = [];
   this.generation = 1;
   this.innovations = [];
-  this.fitness = [];
+  this.scores = [];
   this.species = [];
 
   for(var i = 0; i < popsize; i++){

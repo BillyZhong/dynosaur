@@ -663,7 +663,7 @@ Runner.prototype = {
       this.downPressed = 0;
       if(neat.sim){
         neat.p.population[neat.c].fitnessFunction(isNaN(parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4])) ? 0 : parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4]));
-        neat.p.fitness.push(neat.p.population[neat.c].fitness);
+        neat.p.scores.push(isNaN(parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4])) ? 0 : parseInt(this.distanceMeter.digits[0]+this.distanceMeter.digits[1]+this.distanceMeter.digits[2]+this.distanceMeter.digits[3]+this.distanceMeter.digits[4]));
       }
       neat.sim = 0;
     }
