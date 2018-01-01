@@ -6,8 +6,9 @@ beat the Google Dinosaur Jumper Game.
 To get started, head on over to [http://dynosaur.billyz.me](http://dynosaur.billyz.me)
 
 ## Table of Contents
-- The Game
-- Neural Networks
+- [The Game](#the-game)
+- [Neural Networks](#neural-networks)
+- Multidimensional Search Problem
 - Neuroevolution
 - Neuroevolution of Augmenting Topologies (NEAT)
   - Sequential NEAT
