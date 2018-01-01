@@ -75,11 +75,11 @@ The dinosaurs will take the numerical values of the inputs measured above, propa
 
 ```
 if(output2 > outputThreshold2):
-	duck
+  duck
 else if(output1 > outputThreshold1):
-	jump
+  jump
 else:
-	idle
+  idle
 ```
 
 
