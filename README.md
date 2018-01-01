@@ -91,12 +91,13 @@ A dinosaur will perform and score based off of what neural network it has. Thus,
 ![alt text](https://github.com/BillyZhong/dynosaur/raw/master/documentation/multidimensional.png "Multidimensional Graph")
 
 ## Neuroevolution
-The first method used to mutate the networks is known as [neuroevolution](https://en.wikipedia.org/wiki/Neuroevolution). Neuroevolution serves as a heuristic for exploring the multidimensional search space utilizing [genetic operators](https://en.wikipedia.org/wiki/Genetic_operator) observed in [biological evolution](https://en.wikipedia.org/wiki/Evolution).
+The first method used to mutate the networks is known as [neuroevolution](https://en.wikipedia.org/wiki/Neuroevolution). Neuroevolution serves as a [heuristic](https://en.wikipedia.org/wiki/Heuristic) for exploring the multidimensional search space utilizing [genetic operators](https://en.wikipedia.org/wiki/Genetic_operator) observed in [biological evolution](https://en.wikipedia.org/wiki/Evolution).
 
 #### Neural Network
-
+In neuroevolution, the shape of the network is fixed--no edges or nodes will be added or removed. In this project, the shape of the neural network is that of a [feed-forward network](https://en.wikipedia.org/wiki/Feedforward_neural_network). However, the edges and nodes undergo weight and bias mutations, altering the values of the weights and biases used to calculate outputs.
 
 #### Fitness
+
 
 #### Genetic Operators
 The three main genetic operators are
