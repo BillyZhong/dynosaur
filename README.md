@@ -8,8 +8,8 @@ To get started, head on over to [http://dynosaur.billyz.me](http://dynosaur.bill
 ## Table of Contents
 - [The Game](#the-game)
 - [Neural Networks](#neural-networks)
-- [Multidimensional Search Problem](#multidimensional-search-problem)
-- Neuroevolution
+- [Multidimensional Optimization Problem](#multidimensional-optimization-problem)
+- [Neuroevolution](#neuroevolution)
 - Neuroevolution of Augmenting Topologies (NEAT)
   - Sequential NEAT
   - Parallel NEAT
@@ -18,6 +18,7 @@ To get started, head on over to [http://dynosaur.billyz.me](http://dynosaur.bill
 - Q Learning
   - Sequential Q
   - Parallel Q
+- The Lab
 - Future Improvements
 
 ## The Game
@@ -54,15 +55,15 @@ In order to make this game accessible to the bot, an open source version of the 
 
 ## Neural Networks
 
-In order to give the dinosaur some way to make decisions on whether to jump or duck, each dinosaur will have a neural network “brain”. Neural Networks consist of artificial neurons that are linked together to model biological neurons.
+In order to give the dinosaur some way to make decisions on whether to jump or duck, each dinosaur will have a neural network “brain”. [Neural Networks](https://en.wikipedia.org/wiki/Artificial_neural_network) consist of artificial neurons that are linked together to model biological neurons.
 
 #### Neurons
-An artificial neuron applies activation function 𝜑(𝑥) to Euclidean inner product of inputs and weights to produce output 𝑦, which is fed into the next neurons. They model biological neuron which sums up all stimuli from dendrites and synapses across axon when above a certain threshold.
+An [artificial neuron](https://en.wikipedia.org/wiki/Artificial_neuron) applies activation function 𝜑(𝑥) to Euclidean inner product of inputs and weights to produce output 𝑦, which is fed into the next neurons. They model [biological neurons](https://en.wikipedia.org/wiki/Neuron), which sum up all stimuli from dendrites and synapses across axon when above a certain threshold.
 
 ![alt text](https://github.com/BillyZhong/dynosaur/raw/master/documentation/neuron.png "Artificial Neuron")
 
 #### Activation Functions
-Activation functions are typically Sigmoid functions to round out extreme inputs and center them around zero
+[Activation functions](https://en.wikipedia.org/wiki/Activation_function) are typically [Sigmoid functions](https://en.wikipedia.org/wiki/Sigmoid_function) to round out extreme inputs and center them around zero
 
 ![alt text](https://github.com/BillyZhong/dynosaur/raw/master/documentation/activation.png "Activation Functions")
 
@@ -83,12 +84,26 @@ else:
   idle
 ```
 
-## Multidimensional Search Problem
+## Multidimensional Optimization Problem
 
-A dinosaur will perform and score based off of what neural network it has. Thus, we can consider a dinosaur's score a function of it's neural network. But because a network is merely an n-dimensional vector of weights and biases, the score is actually a function of an n-dimensional vector. Thus the problem to find an optimal scoring dinosaur is actually a multidimensional search problem to find the n-dimensional vector (set of weights and biases) that yield the global maximum.
+A dinosaur will perform and score based off of what neural network it has. Thus, we can consider a dinosaur's score a function of it's neural network. But because a network is merely an n-dimensional vector of weights and biases, the score is actually a function of an n-dimensional vector. Thus the problem to find an optimal scoring dinosaur is actually a multidimensional [optimization problem](https://en.wikipedia.org/wiki/Optimization_problem) to find the n-dimensional vector (set of weights and biases) that yield the global maximum.
 
 ![alt text](https://github.com/BillyZhong/dynosaur/raw/master/documentation/multidimensional.png "Multidimensional Graph")
 
+## Neuroevolution
+The first method used to mutate the networks is known as [neuroevolution](https://en.wikipedia.org/wiki/Neuroevolution). Neuroevolution serves as a heuristic for exploring the multidimensional search space utilizing [genetic operators](https://en.wikipedia.org/wiki/Genetic_operator) observed in [biological evolution](https://en.wikipedia.org/wiki/Evolution).
+
+#### Neural Network
+
+
+#### Fitness
+
+#### Genetic Operators
+The three main genetic operators are
+
+- [Selection](https://en.wikipedia.org/wiki/Selection_(genetic_algorithm))
+- [Crossover](https://en.wikipedia.org/wiki/Crossover_(genetic_algorithm))
+- [Mutation](https://en.wikipedia.org/wiki/Mutation_(genetic_algorithm))
 
 ## Parallel
 ```javascript
