@@ -8,7 +8,7 @@ To get started, head on over to [http://dynosaur.billyz.me](http://dynosaur.bill
 ## Table of Contents
 - [The Game](#the-game)
 - [Neural Networks](#neural-networks)
-- Multidimensional Search Problem
+- [Multidimensional Search Problem](#multidimensional-search-problem)
 - Neuroevolution
 - Neuroevolution of Augmenting Topologies (NEAT)
   - Sequential NEAT
@@ -82,6 +82,12 @@ else if(output1 > outputThreshold1):
 else:
   idle
 ```
+
+## Multidimensional Search Problem
+
+A dinosaur will perform and score based off of what neural network it has. Thus, we can consider a dinosaur's score a function of it's neural network. But because a network is merely an n-dimensional vector of weights and biases, the score is actually a function of an n-dimensional vector. Thus the problem to find an optimal scoring dinosaur is actually a multidimensional search problem to find the n-dimensional vector (set of weights and biases) that yield the global maximum.
+
+![alt text](https://github.com/BillyZhong/dynosaur/raw/master/documentation/multidimensional.png "Multidimensional Graph")
 
 
 ## Parallel
