@@ -97,7 +97,9 @@ The first method used to mutate the networks is known as [neuroevolution](https:
 In neuroevolution, the shape of the network is fixed--no edges or nodes will be added or removed. In this project, the shape of the neural network is that of a [feed-forward network](https://en.wikipedia.org/wiki/Feedforward_neural_network). However, the edges and nodes undergo weight and bias mutations, altering the values of the weights and biases used to calculate outputs.
 
 #### Fitness
+After a dinosaur runs, it is assigned a [fitness score](https://en.wikipedia.org/wiki/Fitness_approximation) using a [fitness function](https://en.wikipedia.org/wiki/Fitness_function). For standard neuroevolution, the fitness score is determined by ![alt text](https://github.com/BillyZhong/dynosaur/raw/master/documentation/neuroevfitness.png "Neuroevolution Fitness") where ```s``` is the dinosaur's score. This allows the fitness scale quadratically with score, weighting differences in lower scores less than differences in higher scores.
 
+[comment]: #2dfitnessgraph
 
 #### Genetic Operators
 The three main genetic operators are
