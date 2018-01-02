@@ -20,6 +20,7 @@ To get started, head on over to [http://dynosaur.billyz.me](http://dynosaur.bill
   - Parallel Q
 - The Lab
 - Future Improvements
+- Resources
 
 ## The Game
 The Google Dinosaur Game is found on Google Chrome's default offline page.
@@ -58,7 +59,7 @@ In order to make this game accessible to the bot, an open source version of the 
 In order to give the dinosaur some way to make decisions on whether to jump or duck, each dinosaur will have a neural network “brain”. [Neural Networks](https://en.wikipedia.org/wiki/Artificial_neural_network) consist of artificial neurons that are linked together to model biological neurons.
 
 #### Neurons
-An [artificial neuron](https://en.wikipedia.org/wiki/Artificial_neuron) applies activation function 𝜑(𝑥) to Euclidean inner product of inputs and weights to produce output 𝑦, which is fed into the next neurons. They model [biological neurons](https://en.wikipedia.org/wiki/Neuron), which sum up all stimuli from dendrites and synapses across axon when above a certain threshold.
+An [artificial neuron](https://en.wikipedia.org/wiki/Artificial_neuron) applies activation function 𝜑(𝑥) to Euclidean inner product of inputs and weights to produce output 𝑦, which is fed into the next neurons. In addition, the activated neuron may also be shifted by the bias of a node . Artificial neurons model [biological neurons](https://en.wikipedia.org/wiki/Neuron), which sum up all stimuli from dendrites and synapses across axon when above a certain threshold.
 
 ![alt text](https://github.com/BillyZhong/dynosaur/raw/master/documentation/neuron.png "Artificial Neuron")
 
@@ -93,6 +94,12 @@ A dinosaur will perform and score based off of what neural network it has. Thus,
 ## Neuroevolution
 The first method used to mutate the networks is known as [neuroevolution](https://en.wikipedia.org/wiki/Neuroevolution). Neuroevolution serves as a [heuristic](https://en.wikipedia.org/wiki/Heuristic) for exploring the multidimensional search space utilizing [genetic operators](https://en.wikipedia.org/wiki/Genetic_operator) observed in [biological evolution](https://en.wikipedia.org/wiki/Evolution).
 
+[comment]: #neuroevflowchart
+
+#### Genome
+At its very base, neuroevolution modifies the [genomes](https://en.wikipedia.org/wiki/Genome) of a population. After the
+genomes are altered, the genomes are expressed into neural networks. In this project, the genome of the neuroevolution population is stored as an object with two attributes: one being an array of edge objects and the other being an array of numbers that represent the biases of the nodes.
+
 #### Neural Network
 In neuroevolution, the shape of the network is fixed--no edges or nodes will be added or removed. In this project, the shape of the neural network is that of a [feed-forward network](https://en.wikipedia.org/wiki/Feedforward_neural_network). However, the edges and nodes undergo weight and bias mutations, altering the values of the weights and biases used to calculate outputs.
 
@@ -102,7 +109,7 @@ After a dinosaur runs, it is assigned a [fitness score](https://en.wikipedia.org
 [comment]: #2dfitnessgraph
 
 #### Genetic Operators
-The three main genetic operators are
+After each dinosaur is assigned a fitness, the entire population undergoes an evolutionary cycle. The three main genetic operators are
 
 - [Selection](https://en.wikipedia.org/wiki/Selection_(genetic_algorithm))
 - [Crossover](https://en.wikipedia.org/wiki/Crossover_(genetic_algorithm))
@@ -132,3 +139,5 @@ neat.startEvolution();
 init(30);
 //spacebar
 ```
+
+## Resources
